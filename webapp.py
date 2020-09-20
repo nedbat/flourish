@@ -39,7 +39,18 @@ def one():
     svg = draw_svg(harm=harm, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
     params = list(harm.parameters())
     shorts = harm.short_parameters()
-    return render_template("one.html", svg=svg, params=params, debug=pformat(shorts))
+    param_display = []
+    for paramdef, thing, val in params:
+        name = thing.name + " " + paramdef.type.name
+        adj_thumbs = []
+        for adj in paramdef.type.adjacent(val):
+            adj_params = dict(shorts)
+            adj_key = thing.name + paramdef.type.key
+            adj_params[adj_key] = paramdef.type.to_short(adj)
+            adj_harm = make_harm_from_short_params(adj_params, npend=3)
+            adj_thumbs.append(make_harm_thumb(adj_harm, size=(192, 108)))
+        param_display.append((name, adj_thumbs))
+    return render_template("one.html", svg=svg, params=params, param_display=param_display)
 
 def one_url(harm):
     q = urllib.parse.urlencode(harm.short_parameters())
