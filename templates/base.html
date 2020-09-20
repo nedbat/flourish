@@ -18,6 +18,14 @@
     .thumbs svg:hover {
         border-color: #888;
     }
+    {% if debug %}
+    .debug {
+        white-space: pre;
+        font-family: monospace;
+        background: #eee;
+        padding: .5em .25em;
+    }
+    {% endif %}
     </style>
 </head>
 <body>
@@ -26,5 +34,8 @@
     content goes here
     {% endblock %}
     </main>
+    {% if debug %}
+    <aside class="debug">{{ debug }}</aside>
+    {% endif %}
 </body>
 </html>
