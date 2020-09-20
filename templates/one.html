@@ -2,16 +2,13 @@
 {% block content %}
 <div class="one">{{svg|safe}}</div>
 <div>
-    <ul>
         {% for name, thumbs in param_display %}
         {% if thumbs %}
-        <li>{{name}}:<br/>
             {% for thumb in thumbs %}
-            <a href="{{thumb.url}}">{{thumb.svg|safe}}</a>
+            <span><a href="{{thumb.url}}">{{thumb.svg|safe}}</a></span>
             {% endfor %}
-        </li>
+            <br/>
         {% endif %}
         {% endfor %}
-    </ul>
 </div>
 {% endblock %}
