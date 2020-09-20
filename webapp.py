@@ -12,22 +12,14 @@ import cairo
 app = Flask(__name__)
 
 @app.route("/")
-def main():
-    seed = request.args.get("seed")
-    seed, rnd = make_random(seed)
-    harm = make_random_harm(rnd, npend=3)
-    html = "<!DOCTYPE html><head><title>Charismatic Headroom</title><body>"
-    html += draw_svg(harm=harm, gray=0, alpha=1, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
-    html += f"<p>seed = <a href='/?seed={seed}'>{seed}</a></p>"
-    if 0:
-        html += "<ul>"
-        for name, value in harm.parameters():
-            html += f"<li>{name}: {value}</li>"
-        html += "</ul>"
-        html += f"<p>{str(list(harm.short_parameters()))}</p>"
-    q = urllib.parse.urlencode(list(harm.short_parameters()))
-    html += f"<p><a href='/one?{q}'>specific</a></p>"
-    return html
+def many():
+    size = (192, 108)
+    thumbs = []
+    for _ in range(30):
+        harm = make_random_harm(random)
+        svg = draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
+        thumbs.append((one_url(harm), svg))
+    return render_template("many.html", thumbs=thumbs)
 
 @app.route("/one")
 def one():
@@ -45,16 +37,6 @@ def one():
 def one_url(harm):
     q = urllib.parse.urlencode(list(harm.short_parameters()))
     return "/one?" + q
-
-@app.route("/many")
-def many():
-    size = (192, 108)
-    thumbs = []
-    for _ in range(35):
-        harm = make_random_harm(random)
-        svg = draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
-        thumbs.append((one_url(harm), svg))
-    return render_template("many.html", thumbs=thumbs)
 
 def make_random_harm(rnd, rampstop=500, npend=3):
     harm = Harmonograph()
