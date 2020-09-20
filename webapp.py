@@ -63,7 +63,3 @@ def draw_svg(harm, start=0, stop=400, size=(500,500), gray=.25, width=.2, alpha=
         ctx.stroke()
 
     return svgio.getvalue().decode("ascii")
-
-
-if __name__ == "__main__":
-    app.run(threaded=True, port=6123)
