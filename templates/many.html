@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="thumbs">
-{% for url, svg in thumbs %}
-    <span><a href="{{url}}">{{svg|safe}}</a></span>
+{% for thumb in thumbs %}
+    <span><a href="{{thumb.url}}">{{thumb.svg|safe}}</a></span>
 {% endfor %}
 </div>
 {% endblock %}

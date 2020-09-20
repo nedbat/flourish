@@ -1,5 +1,6 @@
 import random
 import urllib.parse
+from dataclasses import dataclass
 from io import BytesIO
 
 import cairo
@@ -9,6 +10,12 @@ from harmonograph import Harmonograph, Ramp, FullWave
 
 app = Flask(__name__)
 
+@dataclass
+class Thumb:
+    url: str
+    svg: str
+
+
 @app.route("/")
 def many():
     size = (192, 108)
@@ -16,7 +23,7 @@ def many():
     for _ in range(30):
         harm = make_random_harm(random)
         svg = draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
-        thumbs.append((one_url(harm), svg))
+        thumbs.append(Thumb(url=one_url(harm), svg=svg))
     return render_template("many.html", thumbs=thumbs)
 
 @app.route("/one")
