@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, session
+from flask import Flask, request, redirect, session, render_template
 
 from harmonograph import Harmonograph, Wave, Decay, Ramp, make_random, RandWave
 from harmonograph import FullWave
@@ -43,23 +43,19 @@ def one():
     html += draw_svg(harm=harm, gray=0, alpha=1, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
     return html
 
+def one_url(harm):
+    q = urllib.parse.urlencode(list(harm.short_parameters()))
+    return "/one?" + q
+
 @app.route("/many")
 def many():
-    html = "<!DOCTYPE html><head><title>Charismatic Headroom</title>"
-    html += "<style>"
-    html += "body { max-width: 1000px; margin: 1em auto; } "
-    html += "a { text-decoration: none; } "
-    html += ".thumb svg {border: 1px solid #eee; } .thumb svg:hover { border: 1px solid #888; } "
-    html += "</style>"
-    html += "<body>"
     size = (192, 108)
+    thumbs = []
     for _ in range(35):
         harm = make_random_harm(random)
-        q = urllib.parse.urlencode(list(harm.short_parameters()))
-        html += f"<span class='thumb'><a href='/one?{q}'>"
-        html += draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
-        html += "</a></span>"
-    return html
+        svg = draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
+        thumbs.append((one_url(harm), svg))
+    return render_template("many.html", thumbs=thumbs)
 
 def make_random_harm(rnd, rampstop=500, npend=3):
     harm = Harmonograph()
