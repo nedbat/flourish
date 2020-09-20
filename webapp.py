@@ -32,16 +32,15 @@ def main():
 @app.route("/one")
 def one():
     params = dict(request.args)
-    
+
     npend = 3
     harm = Harmonograph()
     harm.add_dimension([FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
     harm.add_dimension([FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
     harm.set_ramp(Ramp.from_short_params("ramp", params))
 
-    html = "<!DOCTYPE html><head><title>Charismatic Headroom</title><body>"
-    html += draw_svg(harm=harm, gray=0, alpha=1, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
-    return html
+    svg = draw_svg(harm=harm, gray=0, alpha=1, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
+    return render_template("one.html", svg=svg)
 
 def one_url(harm):
     q = urllib.parse.urlencode(list(harm.short_parameters()))

@@ -3,23 +3,28 @@
     <title>Charismatic Headroom</title>
     <style>
     body {
+        padding: 2em;
+    }
+    #content {
+        margin: 0 auto;
         max-width: 1000px;
-        margin: 1em auto;
     }
     a {
         text-decoration: none;
     }
-    .thumb svg {
+    svg {
         border: 1px solid #eee;
     }
-    .thumb svg:hover {
+    .thumbs svg:hover {
         border-color: #888;
     }
     </style>
 </head>
 <body>
-    {% block body %}
-    body goes here
+    <main id="content">
+    {% block content %}
+    content goes here
     {% endblock %}
+    </main>
 </body>
 </html>
