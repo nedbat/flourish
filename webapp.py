@@ -22,27 +22,34 @@ def many():
     thumbs = []
     for _ in range(30):
         harm = make_random_harm(random)
-        svg = draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
-        thumbs.append(Thumb(url=one_url(harm), svg=svg))
+        thumbs.append(make_harm_thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
+
+def make_harm_thumb(harm, size):
+    return Thumb(
+        url=one_url(harm),
+        svg=draw_svg(harm=harm, width=.1, size=size, start=800, stop=1000),
+    )
 
 @app.route("/one")
 def one():
     params = dict(request.args)
+    harm = make_harm_from_short_params(params, npend=3)
+    svg = draw_svg(harm=harm, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
 
-    npend = 3
-    harm = Harmonograph()
-    harm.add_dimension([FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
-    harm.add_dimension([FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
-    harm.set_ramp(Ramp.from_short_params("ramp", params))
-
-    svg = draw_svg(harm=harm, gray=0, alpha=1, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
     params = list(harm.parameters())
     return render_template("one.html", svg=svg, params=params)
 
 def one_url(harm):
     q = urllib.parse.urlencode(list(harm.short_parameters()))
     return "/one?" + q
+
+def make_harm_from_short_params(params, npend):
+    harm = Harmonograph()
+    harm.add_dimension([FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
+    harm.add_dimension([FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
+    harm.set_ramp(Ramp.from_short_params("ramp", params))
+    return harm
 
 def make_random_harm(rnd, rampstop=500, npend=3):
     harm = Harmonograph()
@@ -51,7 +58,7 @@ def make_random_harm(rnd, rampstop=500, npend=3):
     harm.set_ramp(Ramp("ramp", rampstop))
     return harm
 
-def draw_svg(harm, start=0, stop=400, size=(500,500), gray=.25, width=.2, alpha=.5, npend=3):
+def draw_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1, npend=3):
     WIDTH, HEIGHT = size
     maxx = WIDTH / (npend + 1)
     maxy = HEIGHT / (npend + 1)
