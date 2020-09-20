@@ -1,14 +1,11 @@
 # http://paulbourke.net/geometry/harmonograph/
 # https://github.com/tuxar-uk/Harmonumpyplot
 
-import colorsys
 import dataclasses
 import math
 import random
-from dataclasses import dataclass, field
-from math import exp, sin
+from dataclasses import dataclass
 
-import cairo
 import numpy as np
 
 WIDTH, HEIGHT = 2048, 2048
@@ -16,9 +13,9 @@ DRAWW = WIDTH * .9
 DRAWH = HEIGHT * .9
 
 
-consonants = "bcdfghjklmnprstvwz"
-vowels = "aeiou"
 def make_random(seed=None):
+    consonants = "bcdfghjklmnprstvwz"
+    vowels = "aeiou"
     if seed is None:
         rnd = random.Random()
         seed = "".join([
@@ -119,7 +116,7 @@ class FullWave(Parameterized):
         random=lambda rnd: rnd.randint(1, 5),
         )
     amp: Parameter(
-        name="amplitude", 
+        name="amplitude",
         key="a",
         default=.5,
         adjacent=lambda v: [v-.1, v-.05, v+.05, v+.1],
@@ -189,7 +186,7 @@ class Ramp(Parameterized):
         )
 
     def __call__(self, t):
-        return (t / self.stop)
+        return t / self.stop
 
 
 def RandWave(rnd, amp, nfreq, sigma, stop):

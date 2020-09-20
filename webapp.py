@@ -1,13 +1,11 @@
-from flask import Flask, request, redirect, session, render_template
-
-from harmonograph import Harmonograph, Wave, Decay, Ramp, make_random, RandWave
-from harmonograph import FullWave
-import colorsys
 import random
 import urllib.parse
 from io import BytesIO
 
 import cairo
+from flask import Flask, request, render_template
+
+from harmonograph import Harmonograph, Ramp, FullWave
 
 app = Flask(__name__)
 
@@ -45,7 +43,7 @@ def make_random_harm(rnd, rampstop=500, npend=3):
     harm.set_ramp(Ramp("ramp", rampstop))
     return harm
 
-def draw_svg(harm, seed=None, start=0, stop=400, size=(500,500), gray=.25, width=.2, alpha=.5, npend=3):
+def draw_svg(harm, start=0, stop=400, size=(500,500), gray=.25, width=.2, alpha=.5, npend=3):
     WIDTH, HEIGHT = size
     maxx = WIDTH / (npend + 1)
     maxy = HEIGHT / (npend + 1)
