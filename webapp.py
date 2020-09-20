@@ -38,10 +38,11 @@ def one():
     harm = make_harm_from_short_params(params, npend=3)
     svg = draw_svg(harm=harm, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
     params = list(harm.parameters())
-    return render_template("one.html", svg=svg, params=params, debug=pformat(params))
+    shorts = harm.short_parameters()
+    return render_template("one.html", svg=svg, params=params, debug=pformat(shorts))
 
 def one_url(harm):
-    q = urllib.parse.urlencode(list(harm.short_parameters()))
+    q = urllib.parse.urlencode(harm.short_parameters())
     return "/one?" + q
 
 def make_harm_from_short_params(params, npend):

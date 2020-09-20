@@ -94,18 +94,25 @@ class Parameterized:
             kwargs[field.name] = val
         return cls(name=name, **kwargs)
 
+    def param_things(self):
+        return self
+
     def parameters(self):
-        for field in self.paramdefs():
-            key = self.name + field.type.key
-            yield (field, self, getattr(self, field.name))
+        for thing in self.param_things():
+            for field in thing.paramdefs():
+                key = thing.name + field.type.key
+                yield (field, thing, getattr(thing, field.name))
 
     def short_parameters(self):
-        for field in self.paramdefs():
-            key = self.name + field.type.key
-            val = getattr(self, field.name)
-            if field.type.to_short:
-                val = field.type.to_short(val)
-            yield (key, str(val))
+        shorts = {}
+        for thing in self.param_things():
+            for field in thing.paramdefs():
+                key = thing.name + field.type.key
+                val = getattr(thing, field.name)
+                if field.type.to_short:
+                    val = field.type.to_short(val)
+                shorts[key] = str(val)
+        return shorts
 
 @dataclass
 class FullWave(Parameterized):
@@ -197,7 +204,7 @@ def RandWave(rnd, amp, nfreq, sigma, stop):
     )
     return Ramp(wave, stop=stop)
 
-class Harmonograph:
+class Harmonograph(Parameterized):
     def __init__(self):
         self.dimensions = []
 
@@ -219,14 +226,8 @@ class Harmonograph:
         for pt in zip(*pts):
             yield pt
 
-    def parameters(self):
+    def param_things(self):
         for dim in self.dimensions:
             for wave in dim:
-                yield from wave.parameters()
-        yield from self.ramp.parameters()
-
-    def short_parameters(self):
-        for dim in self.dimensions:
-            for wave in dim:
-                yield from wave.short_parameters()
-        yield from self.ramp.short_parameters()
+                yield wave
+        yield self.ramp
