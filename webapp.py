@@ -45,14 +45,20 @@ def one():
 
 @app.route("/many")
 def many():
-    html = "<!DOCTYPE html><head><title>Charismatic Headroom</title><body>"
+    html = "<!DOCTYPE html><head><title>Charismatic Headroom</title>"
+    html += "<style>"
+    html += "body { max-width: 1000px; margin: 1em auto; } "
+    html += "a { text-decoration: none; } "
+    html += ".thumb svg {border: 1px solid #eee; } .thumb svg:hover { border: 1px solid #888; } "
+    html += "</style>"
+    html += "<body>"
     size = (192, 108)
-    for _ in range(36):
+    for _ in range(35):
         harm = make_random_harm(random)
         q = urllib.parse.urlencode(list(harm.short_parameters()))
-        html += f"<span><a href='/one?{q}'>"
+        html += f"<span class='thumb'><a href='/one?{q}'>"
         html += draw_svg(harm=harm, gray=0, alpha=1, width=.1, size=size, start=800, stop=1000)
-        html += "</span>"
+        html += "</a></span>"
     return html
 
 def make_random_harm(rnd, rampstop=500, npend=3):
