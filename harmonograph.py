@@ -42,7 +42,7 @@ class Parameter:
     name: str
     key: str
     default: float
-    adjacent: object = None
+    adjacent: object = lambda v: []
     random: object = None
     to_short: object = None
     from_short: object = None
@@ -97,7 +97,7 @@ class Parameterized:
     def parameters(self):
         for field in self.paramdefs():
             key = self.name + field.type.key
-            yield (key, getattr(self, field.name))
+            yield (field, self, getattr(self, field.name))
 
     def short_parameters(self):
         for field in self.paramdefs():
@@ -180,7 +180,7 @@ class Decay:
 @dataclass
 class Ramp(Parameterized):
     stop: Parameter(
-        name="ramp stop",
+        name="stop",
         key="stop",
         default=500,
         )

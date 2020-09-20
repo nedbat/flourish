@@ -30,7 +30,8 @@ def one():
     harm.set_ramp(Ramp.from_short_params("ramp", params))
 
     svg = draw_svg(harm=harm, gray=0, alpha=1, width=.3, size=(1920/2, 1080/2), start=800, stop=1000)
-    return render_template("one.html", svg=svg)
+    params = list(harm.parameters())
+    return render_template("one.html", svg=svg, params=params)
 
 def one_url(harm):
     q = urllib.parse.urlencode(list(harm.short_parameters()))

@@ -1,4 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-{{svg|safe}}
+<div class="one">{{svg|safe}}</div>
+<div class="params">
+    <ul>
+        {% for param, wave, val in params %}
+            <li>{{ wave.name }} {{ param.type.name }}: {{val}}
+                {{ param.type.adjacent(val) }}</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}
