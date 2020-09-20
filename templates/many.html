@@ -1,23 +1,6 @@
-<!DOCTYPE html>
-<head>
-    <title>Charismatic Headroom</title>
-    <style>
-    body {
-        max-width: 1000px;
-        margin: 1em auto;
-    }
-    a {
-        text-decoration: none;
-    }
-    .thumb svg {
-        border: 1px solid #eee;
-    }
-    .thumb svg:hover {
-        border: 1px solid #888;
-    }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block body %}
 {% for url, svg in thumbs %}
     <span class="thumb"><a href="{{url}}">{{svg|safe}}</a></span>
 {% endfor %}
+{% endblock %}
