@@ -1,0 +1,6 @@
+- numpy for speed
+- codify the rendering styles
+- web app
+- animation (cycle the parameters intelligently)
+- adjacent pics in the parameter space
+- auto scaling and rotation
