@@ -1,3 +1,4 @@
-pycairo
 Flask
+gunicorn
 numpy
+pycairo
