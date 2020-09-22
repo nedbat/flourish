@@ -206,18 +206,19 @@ def RandWave(rnd, amp, nfreq, sigma, stop):
 
 class Harmonograph(Parameterized):
     def __init__(self):
-        self.dimensions = []
+        self.dimensions = {}
 
-    def add_dimension(self, waves):
-        self.dimensions.append(waves)
+    def add_dimension(self, name, waves):
+        self.dimensions[name] = waves
 
     def set_ramp(self, ramp):
         self.ramp = ramp
 
-    def points(self, start=0, stop=100, dt=.01):
+    def points(self, dims, start=0, stop=100, dt=.01):
         t = np.arange(start=start, stop=stop, step=dt)
         pts = []
-        for dim in self.dimensions:
+        for dim_name in dims:
+            dim = self.dimensions[dim_name]
             val = 0.0
             for wave in dim:
                 val += wave(t)
@@ -227,7 +228,7 @@ class Harmonograph(Parameterized):
             yield pt
 
     def param_things(self):
-        for dim in self.dimensions:
+        for dim in self.dimensions.values():
             for wave in dim:
                 yield wave
         yield self.ramp

@@ -58,15 +58,17 @@ def one_url(harm):
 
 def make_harm_from_short_params(params, npend):
     harm = Harmonograph()
-    harm.add_dimension([FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
-    harm.add_dimension([FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
+    harm.add_dimension("x", [FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
+    harm.add_dimension("y", [FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
+    harm.add_dimension("z", [FullWave.from_short_params(f"z{i}", params) for i in range(npend)])
     harm.set_ramp(Ramp.from_short_params("ramp", params))
     return harm
 
 def make_random_harm(rnd, rampstop=500, npend=3):
     harm = Harmonograph()
-    harm.add_dimension([FullWave.make_random(f"x{i}", rnd) for i in range(npend)])
-    harm.add_dimension([FullWave.make_random(f"y{i}", rnd) for i in range(npend)])
+    harm.add_dimension("x", [FullWave.make_random(f"x{i}", rnd) for i in range(npend)])
+    harm.add_dimension("y", [FullWave.make_random(f"y{i}", rnd) for i in range(npend)])
+    harm.add_dimension("z", [FullWave.make_random(f"z{i}", rnd) for i in range(npend)])
     harm.set_ramp(Ramp("ramp", rampstop))
     return harm
 
@@ -82,7 +84,7 @@ def draw_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1,
         ctx.translate(WIDTH / 2, HEIGHT / 2)
         ctx.set_line_width(width)
         ctx.set_source_rgba(gray, gray, gray, alpha)
-        for i, (x, y) in enumerate(harm.points(start=start, stop=stop, dt=.01)):
+        for i, (x, y) in enumerate(harm.points(["x", "y"], start=start, stop=stop, dt=.01)):
             if i == 0:
                 ctx.move_to(x * maxx, y * maxy)
             else:
