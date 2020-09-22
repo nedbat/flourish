@@ -1,3 +1,4 @@
+import colorsys
 import random
 import urllib.parse
 from dataclasses import dataclass
@@ -32,6 +33,13 @@ def make_harm_thumb(harm, size):
         svg=draw_svg(harm=harm, width=.1, size=size, start=800, stop=1000),
     )
 
+def first_last(seq):
+    l = list(seq)
+    if l:
+        return [seq[0], seq[-1]]
+    else:
+        return []
+
 @app.route("/one")
 def one():
     params = dict(request.args)
@@ -43,7 +51,7 @@ def one():
     for paramdef, thing, val in params:
         name = thing.name + " " + paramdef.type.name
         adj_thumbs = []
-        for adj in paramdef.type.adjacent(val):
+        for adj in first_last(paramdef.type.adjacent(val)):
             adj_params = dict(shorts)
             adj_key = thing.name + paramdef.type.key
             adj_params[adj_key] = paramdef.type.to_short(adj)
@@ -51,6 +59,13 @@ def one():
             adj_thumbs.append(make_harm_thumb(adj_harm, size=(192, 108)))
         param_display.append((name, adj_thumbs))
     return render_template("one.html", svg=svg, params=params, param_display=param_display)
+
+@app.route("/color")
+def color():
+    params = dict(request.args)
+    harm = make_harm_from_short_params(params, npend=3)
+    svg = draw_color_svg(harm=harm, width=.3, size=(1920/2, 1080/2), start=800, stop=1000, gray=1, bg=0)
+    return render_template("one.html", svg=svg)
 
 def one_url(harm):
     q = urllib.parse.urlencode(harm.short_parameters())
@@ -72,7 +87,7 @@ def make_random_harm(rnd, rampstop=500, npend=3):
     harm.set_ramp(Ramp("ramp", rampstop))
     return harm
 
-def draw_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1, npend=3):
+def draw_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1, bg=1, npend=3):
     WIDTH, HEIGHT = size
     maxx = WIDTH / (npend + 1)
     maxy = HEIGHT / (npend + 1)
@@ -81,6 +96,10 @@ def draw_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1,
     with cairo.SVGSurface(svgio, WIDTH, HEIGHT) as surface:
         surface.set_document_unit(cairo.SVGUnit.PX)
         ctx = cairo.Context(surface)
+        ctx.rectangle(0, 0, WIDTH, HEIGHT)
+        ctx.set_source_rgba(bg, bg, bg, 1)
+        ctx.fill()
+
         ctx.translate(WIDTH / 2, HEIGHT / 2)
         ctx.set_line_width(width)
         ctx.set_source_rgba(gray, gray, gray, alpha)
@@ -90,5 +109,32 @@ def draw_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1,
             else:
                 ctx.line_to(x * maxx, y * maxy)
         ctx.stroke()
+
+    return svgio.getvalue().decode("ascii")
+
+def draw_color_svg(harm, start=0, stop=400, size=(500,500), gray=0, width=.2, alpha=1, bg=1, npend=3):
+    WIDTH, HEIGHT = size
+    maxx = WIDTH / (npend + 1)
+    maxy = HEIGHT / (npend + 1)
+
+    svgio = BytesIO()
+    with cairo.SVGSurface(svgio, WIDTH, HEIGHT) as surface:
+        surface.set_document_unit(cairo.SVGUnit.PX)
+        ctx = cairo.Context(surface)
+        ctx.rectangle(0, 0, WIDTH, HEIGHT)
+        ctx.set_source_rgba(bg, bg, bg, 1)
+        ctx.fill()
+
+        ctx.translate(WIDTH / 2, HEIGHT / 2)
+        ctx.set_line_width(width)
+        x0 = y0 = None
+        for i, (x, y, z) in enumerate(harm.points(["x", "y", "z"], start=start, stop=stop, dt=.01)):
+            if i > 0:
+                r, g, b = colorsys.hls_to_rgb(z, .5, 1)
+                ctx.set_source_rgba(r, g, b, alpha)
+                ctx.move_to(x0 * maxx, y0 * maxy)
+                ctx.line_to(x * maxx, y * maxy)
+                ctx.stroke()
+            x0, y0 = x, y
 
     return svgio.getvalue().decode("ascii")
