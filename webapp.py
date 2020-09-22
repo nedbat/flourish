@@ -51,7 +51,7 @@ def one():
     for paramdef, thing, val in params:
         name = thing.name + " " + paramdef.type.name
         adj_thumbs = []
-        for adj in first_last(paramdef.type.adjacent(val)):
+        for adj in paramdef.type.adjacent(val):
             adj_params = dict(shorts)
             adj_key = thing.name + paramdef.type.key
             adj_params[adj_key] = paramdef.type.to_short(adj)
