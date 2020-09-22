@@ -6,7 +6,7 @@ from io import BytesIO
 from pprint import pformat
 
 import cairo
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, render_template_string
 
 from harmonograph import Harmonograph, Ramp, FullWave
 
@@ -14,9 +14,17 @@ app = Flask(__name__)
 
 @dataclass
 class Thumb:
-    url: str
-    svg: str
+    harm: Harmonograph
+    size: object
 
+    def as_html(self):
+        url = one_url(self.harm)
+        svg = draw_svg(harm=self.harm, width=.1, size=self.size, start=800, stop=1000)
+        return render_template_string(
+            '''<span><a href="{{url}}"><div class="thumb">{{svg|safe}}</div></a></span>''',
+            url=url,
+            svg=svg
+        )
 
 @app.route("/")
 def many():
@@ -24,14 +32,8 @@ def many():
     thumbs = []
     for _ in range(30):
         harm = make_random_harm(random)
-        thumbs.append(make_harm_thumb(harm, size=size))
+        thumbs.append(Thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
-
-def make_harm_thumb(harm, size):
-    return Thumb(
-        url=one_url(harm),
-        svg=draw_svg(harm=harm, width=.1, size=size, start=800, stop=1000),
-    )
 
 def first_last(seq):
     l = list(seq)
@@ -56,7 +58,7 @@ def one():
             adj_key = thing.name + paramdef.type.key
             adj_params[adj_key] = paramdef.type.to_short(adj)
             adj_harm = make_harm_from_short_params(adj_params, npend=3)
-            adj_thumbs.append(make_harm_thumb(adj_harm, size=(192, 108)))
+            adj_thumbs.append(Thumb(adj_harm, size=(192, 108)))
         param_display.append((name, adj_thumbs))
     return render_template("one.html", svg=svg, params=params, param_display=param_display)
 

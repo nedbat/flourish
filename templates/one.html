@@ -5,7 +5,7 @@
     {% for name, thumbs in param_display %}
         {% if thumbs %}
             {% for thumb in thumbs %}
-            <span><a href="{{thumb.url}}"><div class="thumb">{{thumb.svg|safe}}</div></a></span>
+                {{thumb.as_html()|safe}}
             {% endfor %}
             <br/>
         {% endif %}

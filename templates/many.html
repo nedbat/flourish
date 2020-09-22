@@ -2,7 +2,7 @@
 {% block content %}
 <div class="thumbs">
 {% for thumb in thumbs %}
-    <span><a href="{{thumb.url}}">{{thumb.svg|safe}}</a></span>
+    {{ thumb.as_html()|safe }}
 {% endfor %}
 </div>
 {% endblock %}
