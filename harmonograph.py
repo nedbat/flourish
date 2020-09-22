@@ -44,8 +44,8 @@ class Parameter:
     default: float
     adjacent: object = lambda v: []
     random: object = None
-    to_short: object = None
-    from_short: object = None
+    to_short: object = str
+    from_short: object = int
 
 @dataclass
 class Parameterized:
@@ -196,6 +196,21 @@ class Ramp(Parameterized):
         return t / self.stop
 
 
+@dataclass
+class TimeSpan(Parameterized):
+    start: Parameter(
+        name="start",
+        key="a",
+        default=800,
+        adjacent=lambda v: [v-200, v-100, v+100, v+200],
+        )
+    stop: Parameter(
+        name="stop",
+        key="z",
+        default=1000,
+        adjacent=lambda v: [v-200, v-100, v+100, v+200],
+        )
+
 def RandWave(rnd, amp, nfreq, sigma, stop):
     wave = Wave(
         amp=rnd.uniform(0, amp),
@@ -207,6 +222,7 @@ def RandWave(rnd, amp, nfreq, sigma, stop):
 class Harmonograph(Parameterized):
     def __init__(self):
         self.dimensions = {}
+        self.set_time_span(TimeSpan("ts", 800, 1000))
 
     def add_dimension(self, name, waves):
         self.dimensions[name] = waves
@@ -214,8 +230,11 @@ class Harmonograph(Parameterized):
     def set_ramp(self, ramp):
         self.ramp = ramp
 
-    def points(self, dims, start=0, stop=100, dt=.01):
-        t = np.arange(start=start, stop=stop, step=dt)
+    def set_time_span(self, timespan):
+        self.timespan = timespan
+
+    def points(self, dims, dt=.01):
+        t = np.arange(start=self.timespan.start, stop=self.timespan.stop, step=dt)
         pts = []
         for dim_name in dims:
             dim = self.dimensions[dim_name]
@@ -231,4 +250,5 @@ class Harmonograph(Parameterized):
         for dim in self.dimensions.values():
             for wave in dim:
                 yield wave
+        yield self.timespan
         yield self.ramp
