@@ -198,17 +198,17 @@ class Ramp(Parameterized):
 
 @dataclass
 class TimeSpan(Parameterized):
-    start: Parameter(
-        name="start",
-        key="a",
-        default=800,
+    center: Parameter(
+        name="center",
+        key="c",
+        default=900,
         adjacent=lambda v: [v-200, v-100, v+100, v+200],
         )
-    stop: Parameter(
-        name="stop",
-        key="z",
-        default=1000,
-        adjacent=lambda v: [v-200, v-100, v+100, v+200],
+    width: Parameter(
+        name="width",
+        key="w",
+        default=200,
+        adjacent=lambda v: [v-100, v-50, v+50, v+100],
         )
 
 def RandWave(rnd, amp, nfreq, sigma, stop):
@@ -222,7 +222,7 @@ def RandWave(rnd, amp, nfreq, sigma, stop):
 class Harmonograph(Parameterized):
     def __init__(self):
         self.dimensions = {}
-        self.set_time_span(TimeSpan("ts", 800, 1000))
+        self.set_time_span(TimeSpan("ts", 900, 200))
 
     def add_dimension(self, name, waves):
         self.dimensions[name] = waves
@@ -234,7 +234,12 @@ class Harmonograph(Parameterized):
         self.timespan = timespan
 
     def points(self, dims, dt=.01):
-        t = np.arange(start=self.timespan.start, stop=self.timespan.stop, step=dt)
+        ts_half = self.timespan.width // 2
+        t = np.arange(
+            start=self.timespan.center - ts_half,
+            stop=self.timespan.center + ts_half,
+            step=dt,
+        )
         pts = []
         for dim_name in dims:
             dim = self.dimensions[dim_name]
