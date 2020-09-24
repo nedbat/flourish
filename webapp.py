@@ -6,7 +6,7 @@ from io import BytesIO
 from pprint import pformat
 
 import cairo
-from flask import Flask, request, render_template, render_template_string
+from flask import Flask, request, render_template, render_template_string, send_file
 
 from harmonograph import Harmonograph, Ramp, FullWave, TimeSpan
 
@@ -18,12 +18,25 @@ class Thumb:
     size: object
 
     def as_html(self):
-        url = one_url(self.harm)
+        url = one_url("/one", self.harm)
         svg = draw_svg(ElegantLine(linewidth=.1), harm=self.harm, size=self.size)
         return render_template_string(
             '''<span><a href="{{url}}"><div class="thumb">{{svg|safe}}</div></a></span>''',
             url=url,
             svg=svg
+        )
+
+    def as_html(self):
+        url = one_url("/one", self.harm)
+        sx = self.size[0]
+        sy = self.size[1]
+        pngurl = one_url("/png", self.harm, sx=sx*2, sy=sy*2)
+        return render_template_string(
+            '''<span><a href="{{url}}"><div class="thumb"><img src={{pngurl}} width="{{sx}}" height="{{sy}}" /></div></a></span>''',
+            url=url,
+            pngurl=pngurl,
+            sx=sx,
+            sy=sy,
         )
 
 @app.route("/")
@@ -46,7 +59,7 @@ def first_last(seq):
 def one():
     params = dict(request.args)
     harm = make_harm_from_short_params(params, npend=3)
-    svg = draw_svg(ElegantLine(linewidth=.3), harm=harm, size=(1920/2, 1080/2))
+    svg = draw_svg(ElegantLine(linewidth=.3), harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
@@ -62,16 +75,26 @@ def one():
         param_display.append((name, adj_thumbs))
     return render_template("one.html", svg=svg, params=params, param_display=param_display)
 
+@app.route("/png")
+def png():
+    params = dict(request.args)
+    harm = make_harm_from_short_params(params, npend=3)
+    sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
+    png_bytes = draw_png(ElegantLine(linewidth=.3), harm=harm, size=(sx, sy))
+    return send_file(png_bytes, mimetype="image/png")
+
 @app.route("/color")
 def color():
     params = dict(request.args)
     harm = make_harm_from_short_params(params, npend=3)
-    svg = draw_color_svg(harm=harm, linewidth=.3, size=(1920/2, 1080/2), gray=1, bg=0)
+    svg = draw_color_svg(harm=harm, linewidth=.3, size=(1920//2, 1080//2), gray=1, bg=0)
     return render_template("one.html", svg=svg)
 
-def one_url(harm):
-    q = urllib.parse.urlencode(harm.short_parameters())
-    return "/one?" + q
+def one_url(route, harm, **kwargs):
+    qargs = harm.short_parameters()
+    qargs.update(kwargs)
+    q = urllib.parse.urlencode(qargs)
+    return f"{route}?" + q
 
 def make_harm_from_short_params(params, npend):
     harm = Harmonograph()
@@ -156,3 +179,12 @@ def draw_svg(render, harm, size):
         surface.set_document_unit(cairo.SVGUnit.PX)
         render.draw(surface, size, harm)
     return svgio.getvalue().decode("ascii")
+
+def draw_png(render, harm, size):
+    width, height = size
+    with cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height) as surface:
+        render.draw(surface, size, harm)
+        pngio = BytesIO()
+        surface.write_to_png(pngio)
+    pngio.seek(0)
+    return pngio
