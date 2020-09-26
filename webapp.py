@@ -18,17 +18,26 @@ class Thumb:
     harm: Harmonograph
     size: object
 
-    def as_html(self):
+    def as_html(self, title=None):
         url = one_url("/one", self.harm)
         sx = self.size[0]
         sy = self.size[1]
         pngurl = one_url("/png", self.harm, sx=sx*2, sy=sy*2)
         return render_template_string(
-            '''<span><a href="{{url}}"><div class="thumb"><img src={{pngurl}} width="{{sx}}" height="{{sy}}" /></div></a></span>''',
+            '''
+            <span>
+                <a href="{{url}}" {% if title %}title="{{ title }}"{% endif %}>
+                    <div class="thumb">
+                        <img src={{pngurl}} width="{{sx}}" height="{{sy}}" />
+                    </div>
+                </a>
+            </span>
+            ''',
             url=url,
             pngurl=pngurl,
             sx=sx,
             sy=sy,
+            title=title,
         )
 
 @app.route("/")
@@ -43,7 +52,7 @@ def many():
 def first_last(seq):
     l = list(seq)
     if l:
-        return [seq[0], seq[-1]]
+        return [l[0], l[-1]]
     else:
         return []
 
@@ -63,7 +72,8 @@ def one():
             adj_key = thing.name + paramdef.type.key
             adj_params[adj_key] = paramdef.type.to_short(adj)
             adj_harm = make_harm_from_short_params(adj_params, npend=3)
-            adj_thumbs.append(Thumb(adj_harm, size=(192, 108)))
+            adj_repr = paramdef.type.repr(adj)
+            adj_thumbs.append((adj_repr, Thumb(adj_harm, size=(192, 108))))
         param_display.append((name, adj_thumbs))
     return render_template("one.html", svg=svg, params=params, param_display=param_display)
 

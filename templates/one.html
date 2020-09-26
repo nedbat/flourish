@@ -7,8 +7,8 @@
 <div class="nexts thumbs">
     {% for name, thumbs in param_display %}
         {% if thumbs %}
-            {% for thumb in thumbs %}
-                {{thumb.as_html()|safe}}
+            {% for val, thumb in thumbs %}
+                {{thumb.as_html(title="{name} = {val}".format(name=name, val=val))|safe}}
             {% endfor %}
             <br/>
         {% endif %}

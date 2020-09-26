@@ -46,6 +46,7 @@ class Parameter:
     random: object = None
     to_short: object = str
     from_short: object = int
+    repr: object = lambda v: format(v, ".3f")
 
 @dataclass
 class Parameterized:
@@ -138,6 +139,7 @@ class FullWave(Parameterized):
         random=lambda rnd: rnd.gauss(0, .005),
         to_short=lambda v: int(v * 1_000_000),
         from_short=lambda s: float(s) / 1_000_000,
+        repr=lambda v: format(v, ".6f")
         )
     phase: Parameter(
         name="phase",
@@ -202,12 +204,14 @@ class TimeSpan(Parameterized):
         key="c",
         default=900,
         adjacent=lambda v: [v-200, v-100, v+100, v+200],
+        repr=repr,
         )
     width: Parameter(
         name="width",
         key="w",
         default=200,
         adjacent=lambda v: [v-100, v-50, v+50, v+100],
+        repr=repr,
         )
 
 def RandWave(rnd, amp, nfreq, sigma, stop):
