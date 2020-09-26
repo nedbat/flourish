@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block leftnav %}
+    <a href="/" title="Back to random grid">{% include "icon_grid.svg" %}</a>
+{% endblock %}
 {% block content %}
 <div class="one">{{svg|safe}}</div>
 <div class="nexts thumbs">

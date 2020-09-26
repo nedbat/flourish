@@ -6,6 +6,9 @@
     body {
         padding: 2em;
     }
+    #leftnav {
+        text-align: left;
+    }
     #content {
         margin: 0 auto;
         max-width: 1000px;
@@ -44,6 +47,9 @@
     </style>
 </head>
 <body>
+    <nav id="leftnav">
+        {% block leftnav %}{% endblock %}
+    </nav>
     <main id="content">
     {% block content %}
     content goes here
