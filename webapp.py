@@ -2,7 +2,6 @@ import functools
 import random
 import urllib.parse
 from dataclasses import dataclass
-from pprint import pformat
 
 from flask import Flask, request, render_template, render_template_string, send_file
 
@@ -18,15 +17,6 @@ TheRender = functools.partial(ElegantLine, linewidth=.5, alpha=1)
 class Thumb:
     harm: Harmonograph
     size: object
-
-    def as_html(self):
-        url = one_url("/one", self.harm)
-        svg = draw_svg(TheRender(linewidth=.1), harm=self.harm, size=self.size)
-        return render_template_string(
-            '''<span><a href="{{url}}"><div class="thumb">{{svg|safe}}</div></a></span>''',
-            url=url,
-            svg=svg
-        )
 
     def as_html(self):
         url = one_url("/one", self.harm)
@@ -84,13 +74,6 @@ def png():
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
-
-@app.route("/color")
-def color():
-    params = dict(request.args)
-    harm = make_harm_from_short_params(params, npend=3)
-    svg = draw_color_svg(harm=harm, linewidth=.3, size=(1920//2, 1080//2), gray=1, bg=0)
-    return render_template("one.html", svg=svg)
 
 def one_url(route, harm, **kwargs):
     qargs = harm.short_parameters()

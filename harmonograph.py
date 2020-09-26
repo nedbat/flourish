@@ -100,7 +100,6 @@ class Parameterized:
     def parameters(self):
         for thing in self.param_things():
             for field in thing.paramdefs():
-                key = thing.name + field.type.key
                 yield (field, thing, getattr(thing, field.name))
 
     def short_parameters(self):
