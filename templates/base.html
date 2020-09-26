@@ -9,6 +9,9 @@
     #leftnav {
         text-align: left;
     }
+    #rightnav {
+        text-align: right;
+    }
     #content {
         margin: 0 auto;
         max-width: 1000px;
@@ -49,6 +52,9 @@
 <body>
     <nav id="leftnav">
         {% block leftnav %}{% endblock %}
+    </nav>
+    <nav id="rightnav">
+        {% block rightnav %}{% endblock %}
     </nav>
     <main id="content">
     {% block content %}

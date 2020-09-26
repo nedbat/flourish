@@ -1,9 +1,11 @@
 import functools
+import json
 import random
 import urllib.parse
 from dataclasses import dataclass
 
 from flask import Flask, request, render_template, render_template_string, send_file
+from PIL import Image, PngImagePlugin
 
 from harmonograph import Harmonograph, Ramp, FullWave, TimeSpan
 from render import draw_png, draw_svg, ColorLine, ElegantLine
@@ -68,7 +70,14 @@ def one():
             adj_repr = paramdef.type.repr(adj)
             adj_thumbs.append((adj_repr, Thumb(adj_harm, size=(192, 108))))
         param_display.append((name, adj_thumbs))
-    return render_template("one.html", svg=svg, params=params, param_display=param_display)
+    download_url = one_url("/download", harm, sx=1920, sy=1080)
+    return render_template(
+        "one.html",
+        svg=svg,
+        params=params,
+        param_display=param_display,
+        download_url=download_url,
+    )
 
 @app.route("/png")
 def png():
@@ -77,6 +86,21 @@ def png():
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
+
+@app.route("/download")
+def download():
+    params = dict(request.args)
+    harm = make_harm_from_short_params(params, npend=3)
+    sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
+    png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
+    im = Image.open(png_bytes)
+    info = PngImagePlugin.PngInfo()
+    info.add_text("Software", "https://nedbat-flourish.herokuapp.com")
+    info.add_text("Flourish State", json.dumps(params))
+    png_bytes.seek(0)
+    im.save(png_bytes, 'PNG', pnginfo=info)
+    png_bytes.seek(0)
+    return send_file(png_bytes, as_attachment=True, attachment_filename="flourish.png", mimetype="image/png")
 
 def one_url(route, harm, **kwargs):
     qargs = harm.short_parameters()

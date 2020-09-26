@@ -1,4 +1,5 @@
 Flask
 gunicorn
 numpy
+Pillow
 pycairo
