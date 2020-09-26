@@ -10,8 +10,8 @@ from render import draw_png, draw_svg, ColorLine, ElegantLine
 
 app = Flask(__name__)
 
-TheRender = functools.partial(ColorLine, linewidth=3.75, alpha=.5)
-TheRender = functools.partial(ElegantLine, linewidth=.5, alpha=1)
+TheRender = functools.partial(ColorLine, linewidth=10, alpha=.5)
+TheRender = functools.partial(ElegantLine, linewidth=3, alpha=1)
 
 @dataclass
 class Thumb:

@@ -23,7 +23,7 @@ class ElegantLine(Render):
         ctx.fill()
 
         ctx.translate(width / 2, height / 2)
-        ctx.set_line_width(self.linewidth)
+        ctx.set_line_width(width * self.linewidth / 10000)
         ctx.set_source_rgba(self.gray, self.gray, self.gray, self.alpha)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
@@ -49,11 +49,11 @@ class ColorLine(Render):
         ctx.fill()
 
         ctx.translate(width / 2, height / 2)
-        ctx.set_line_width(self.linewidth)
+        ctx.set_line_width(width * self.linewidth / 10000)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
         x0 = y0 = None
-        for i, (x, y, z) in enumerate(harm.points(["x", "y", "z"], dt=.002)):
+        for i, (x, y, z) in enumerate(harm.points(["x", "y", "z"], dt=.01)):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(z, .5, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
