@@ -3,7 +3,6 @@
 
 import dataclasses
 import math
-import random
 from dataclasses import dataclass
 
 import numpy as np
@@ -11,30 +10,6 @@ import numpy as np
 WIDTH, HEIGHT = 2048, 2048
 DRAWW = WIDTH * .9
 DRAWH = HEIGHT * .9
-
-
-def make_random(seed=None):
-    consonants = "bcdfghjklmnprstvwz"
-    vowels = "aeiou"
-    if seed is None:
-        rnd = random.Random()
-        seed = "".join([
-            rnd.choice(consonants),
-            rnd.choice(vowels),
-            rnd.choice(consonants),
-            rnd.choice(vowels),
-            rnd.choice(consonants),
-            rnd.choice(vowels),
-            rnd.choice(consonants),
-            rnd.choice(vowels),
-            rnd.choice(consonants),
-            rnd.choice(vowels),
-            rnd.choice(consonants),
-            str(rnd.randint(1, 99)),
-        ])
-    rnd = random.Random()
-    rnd.seed(seed)
-    return seed, rnd
 
 
 @dataclass
@@ -60,7 +35,7 @@ class Parameterized:
             yield field
 
     @classmethod
-    def make_random(cls, name, rnd=random):
+    def make_random(cls, name, rnd):
         kwargs = {}
         for field in cls.paramdefs():
             if field.type.random:
@@ -175,14 +150,6 @@ def Wave(amp=None, freq=None, phase=0.0, min=None, max=None):
     else:
         offset = 0.0
     return _Wave(amp, freq, phase, offset)
-
-@dataclass
-class Decay:
-    signal: object
-    decay: float = 0.02
-
-    def __call__(self, t):
-        return np.exp(-self.decay * t) * self.signal(t)
 
 
 @dataclass

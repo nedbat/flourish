@@ -49,13 +49,6 @@ def many():
         thumbs.append(Thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
 
-def first_last(seq):
-    l = list(seq)
-    if l:
-        return [l[0], l[-1]]
-    else:
-        return []
-
 @app.route("/one")
 def one():
     params = dict(request.args)
