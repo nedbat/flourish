@@ -3,64 +3,7 @@
     <title>Flourish</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&amp;display=swap');
-    body {
-        padding: 2rem;
-    }
-    h1, p, ul, li, input {
-        text-align: left;
-        font-family: 'Alegreya', serif;
-        font-size: 1.6rem;
-        max-width: 30em;
-    }
-    h1:first-of-type {
-        margin-top: 0;
-    }
-    #leftnav {
-        text-align: left;
-        width: 24px;
-        height: 0;
-    }
-    #leftnav a {
-        display: block;
-        height: 48px;
-    }
-    #rightnav {
-        text-align: right;
-        height: 0;
-    }
-    #rightnav a {
-        display: block;
-        height: 48px;
-    }
-    #content {
-        margin: 0 auto;
-        max-width: 1000px;
-        text-align: center;
-    }
-    a {
-        text-decoration: none;
-        font-weight: 600;
-    }
-    .one {
-        display: inline-block;
-        border: 1px solid #eee;
-        line-height: 0;
-    }
-    .thumb {
-        display: inline-block;
-        border: 1px solid #eee;
-        line-height: 0;
-    }
-    .thumb:hover {
-        border-color: #888;
-    }
-    .nexts {
-        margin-top: 2rem;
-    }
-    .nexts .thumb {
-        margin: .5rem;
-    }
+    {% include "style.css" %}
     {% if debug %}
     .debug {
         white-space: pre;
@@ -70,6 +13,9 @@
     }
     {% endif %}
     </style>
+    <script>
+        {% include "interaction.js" %}
+    </script>
 </head>
 <body>
     <nav id="leftnav">
@@ -78,11 +24,39 @@
     <nav id="rightnav">
         {% block rightnav %}{% endblock %}
     </nav>
+
     <main id="content">
     {% block content %}
     content goes here
     {% endblock %}
     </main>
+
+    <div id="scrim"></div>
+
+    <aside id="about">
+        <a href="#" class="close" id="about_close" onClick="hideAbout()">{% include "icon_close.svg" %}</a>
+        <h1>Flourish</h1>
+
+        <p>These are <a href="https://en.wikipedia.org/wiki/Harmonograph">harmonographs</a>,
+        traces of a multi-pendulum drawing machine.</p>
+
+        <p>Made by <a href="https://nedbatchelder.com">Ned Batchelder</a>.</p>
+
+        <p>These were helpful:</p>
+
+        <ul>
+        <li>Paul Bourke’s
+            <a href="http://paulbourke.net/geometry/harmonograph/">Harmonograph page</a>
+            has details and equations.</li>
+        <li>Alan Richmond’s
+            <a href="https://github.com/tuxar-uk/Harmonumpyplot">Harmonograph simulators using numpy and matplotlib</a>
+            provided good ideas about numpy and how to randomly generate good starting
+            points.</li>
+        </ul>
+
+        <p>Icons from <a href="https://icons.mono.company/">Mono Icons</a>.</p>
+    </aside>
+
     {% if debug %}
     <aside class="debug">{{ debug }}</aside>
     {% endif %}

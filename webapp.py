@@ -55,10 +55,6 @@ def many():
         thumbs.append(Thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
 
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
 @app.route("/one")
 def one():
     params = dict(request.args)
