@@ -3,8 +3,12 @@ import json
 import random
 import urllib.parse
 from dataclasses import dataclass
+from io import BytesIO
 
-from flask import Flask, request, render_template, render_template_string, send_file
+from flask import (
+    Flask, request,
+    render_template, render_template_string, send_file, redirect,
+)
 from PIL import Image, PngImagePlugin
 
 from harmonograph import Harmonograph, Ramp, FullWave, TimeSpan
@@ -87,6 +91,8 @@ def png():
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
 
+STATE_KEY = "Flourish State"
+
 @app.route("/download")
 def download():
     params = dict(request.args)
@@ -96,17 +102,41 @@ def download():
     im = Image.open(png_bytes)
     info = PngImagePlugin.PngInfo()
     info.add_text("Software", "https://nedbat-flourish.herokuapp.com")
-    info.add_text("Flourish State", json.dumps(params))
-    png_bytes.seek(0)
-    im.save(png_bytes, 'PNG', pnginfo=info)
+    info.add_text(STATE_KEY, json.dumps(params))
+    png_bytes = BytesIO()
+    im.save(png_bytes, "PNG", pnginfo=info)
     png_bytes.seek(0)
     return send_file(png_bytes, as_attachment=True, attachment_filename="flourish.png", mimetype="image/png")
+
+@app.route("/upload")
+def upload():
+    return render_template("upload.html")
+
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    uploaded_file = request.files["file"]
+    if uploaded_file.filename.endswith(".png"):
+        try:
+            pngio = BytesIO()
+            uploaded_file.save(pngio)
+            pngio.seek(0)
+            im = Image.open(pngio)
+            params = im.info.get(STATE_KEY)
+            if params:
+                q = urllib.parse.urlencode(json.loads(params))
+                return redirect(f"/one?{q}")
+        except Exception:
+            pass
+        error = f"Couldn't find Flourish info in {uploaded_file.filename}"
+    else:
+        error = "Only .png files downloaded from Flourish will work"
+    return render_template("upload.html", error=error)
 
 def one_url(route, harm, **kwargs):
     qargs = harm.short_parameters()
     qargs.update(kwargs)
     q = urllib.parse.urlencode(qargs)
-    return f"{route}?" + q
+    return f"{route}?{q}"
 
 def make_harm_from_short_params(params, npend):
     harm = Harmonograph()

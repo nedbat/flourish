@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block leftnav %}
+    <a href="/" title="Back to home">{% include "icon_grid.svg" %}</a>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
+<p>Upload!</p>
+<form method="POST" action="" enctype="multipart/form-data">
+    <p><input type="file" name="file"></p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+{% endblock %}

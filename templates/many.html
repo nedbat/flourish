@@ -1,7 +1,13 @@
 {% extends "base.html" %}
+
 {% block leftnav %}
     <a href="/" title="Reload">{% include "icon_refresh.svg" %}</a>
 {% endblock %}
+
+{% block rightnav %}
+    <a href="/upload" title="Upload">{% include "icon_upload.svg" %}</a>
+{% endblock %}
+
 {% block content %}
 <div class="thumbs">
 {% for thumb in thumbs %}
