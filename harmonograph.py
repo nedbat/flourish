@@ -1,6 +1,3 @@
-# http://paulbourke.net/geometry/harmonograph/
-# https://github.com/tuxar-uk/Harmonumpyplot
-
 import dataclasses
 import math
 from dataclasses import dataclass

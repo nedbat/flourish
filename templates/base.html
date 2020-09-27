@@ -2,15 +2,32 @@
 <head>
     <title>Flourish</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Vollkorn&display=swap" rel="stylesheet">
     <style>
     body {
         padding: 2em;
     }
+    h1, p, ul, li {
+        text-align: left;
+        font-family: 'Vollkorn', serif;
+        font-size: 2rem;
+    }
     #leftnav {
         text-align: left;
+        width: 24px;
+        height: 0;
+    }
+    #leftnav a {
+        display: block;
+        height: 48px;
     }
     #rightnav {
         text-align: right;
+        height: 0;
+    }
+    #rightnav a {
+        display: block;
+        height: 48px;
     }
     #content {
         margin: 0 auto;
@@ -34,10 +51,10 @@
         border-color: #888;
     }
     .nexts {
-        margin-top: 2em;
+        margin-top: 2rem;
     }
     .nexts .thumb {
-        margin: .5em;
+        margin: .5rem;
     }
     {% if debug %}
     .debug {
