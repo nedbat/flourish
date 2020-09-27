@@ -2,15 +2,19 @@
 <head>
     <title>Flourish</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Vollkorn&display=swap" rel="stylesheet">
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&amp;display=swap');
     body {
-        padding: 2em;
+        padding: 2rem;
     }
-    h1, p, ul, li {
+    h1, p, ul, li, input {
         text-align: left;
-        font-family: 'Vollkorn', serif;
-        font-size: 2rem;
+        font-family: 'Alegreya', serif;
+        font-size: 1.6rem;
+        max-width: 30em;
+    }
+    h1:first-of-type {
+        margin-top: 0;
     }
     #leftnav {
         text-align: left;
@@ -36,6 +40,7 @@
     }
     a {
         text-decoration: none;
+        font-weight: 600;
     }
     .one {
         display: inline-block;
