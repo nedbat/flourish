@@ -19,6 +19,8 @@ app = Flask(__name__)
 TheRender = functools.partial(ColorLine, linewidth=10, alpha=.5)
 TheRender = functools.partial(ElegantLine, linewidth=3, alpha=1)
 
+NPEND = 3
+
 @dataclass
 class Thumb:
     harm: Harmonograph
@@ -51,14 +53,14 @@ def many():
     size = (192, 108)
     thumbs = []
     for _ in range(30):
-        harm = make_random_harm(random)
+        harm = make_random_harm(random, npend=NPEND)
         thumbs.append(Thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
 
 @app.route("/one")
 def one():
     params = dict(request.args)
-    harm = make_harm_from_short_params(params, npend=3)
+    harm = make_harm_from_short_params(params, npend=NPEND)
     svg = draw_svg(TheRender(), harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
@@ -70,7 +72,7 @@ def one():
             adj_params = dict(shorts)
             adj_key = thing.name + paramdef.type.key
             adj_params[adj_key] = paramdef.type.to_short(adj)
-            adj_harm = make_harm_from_short_params(adj_params, npend=3)
+            adj_harm = make_harm_from_short_params(adj_params, npend=NPEND)
             adj_repr = paramdef.type.repr(adj)
             adj_thumbs.append((adj_repr, Thumb(adj_harm, size=(192, 108))))
         param_display.append((name, adj_thumbs))
@@ -86,7 +88,7 @@ def one():
 @app.route("/png")
 def png():
     params = dict(request.args)
-    harm = make_harm_from_short_params(params, npend=3)
+    harm = make_harm_from_short_params(params, npend=NPEND)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
@@ -96,7 +98,7 @@ STATE_KEY = "Flourish State"
 @app.route("/download")
 def download():
     params = dict(request.args)
-    harm = make_harm_from_short_params(params, npend=3)
+    harm = make_harm_from_short_params(params, npend=NPEND)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     im = Image.open(png_bytes)
