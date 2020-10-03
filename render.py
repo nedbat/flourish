@@ -4,26 +4,33 @@ from io import BytesIO
 import cairo
 
 class Render:
-    def draw(self, surface, size, harm):
-        pass
-
-class ElegantLine(Render):
-    def __init__(self, gray=0, linewidth=.2, alpha=1, bg=1):
-        self.gray = gray
+    def __init__(self, linewidth=5, alpha=1, bg=1):
         self.linewidth = linewidth
         self.alpha = alpha
         self.bg = bg
 
-    def draw(self, surface, size, harm):
-        npend = 3
+    def prep_context(self, surface, size):
         width, height = size
         ctx = cairo.Context(surface)
         ctx.rectangle(0, 0, width, height)
         ctx.set_source_rgba(self.bg, self.bg, self.bg, 1)
         ctx.fill()
-
         ctx.translate(width / 2, height / 2)
         ctx.set_line_width(width * self.linewidth / 10000)
+        return ctx
+
+    def draw(self, surface, size, harm):
+        pass
+
+class ElegantLine(Render):
+    def __init__(self, gray=0, **kwargs):
+        super().__init__(**kwargs)
+        self.gray = gray
+
+    def draw(self, surface, size, harm):
+        npend = 3
+        width, height = size
+        ctx = self.prep_context(surface, size)
         ctx.set_source_rgba(self.gray, self.gray, self.gray, self.alpha)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
@@ -35,21 +42,13 @@ class ElegantLine(Render):
         ctx.stroke()
 
 class ColorLine(Render):
-    def __init__(self, linewidth=.2, alpha=1, bg=1):
-        self.linewidth = linewidth
-        self.alpha = alpha
-        self.bg = bg
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def draw(self, surface, size, harm):
         npend = 3
         width, height = size
-        ctx = cairo.Context(surface)
-        ctx.rectangle(0, 0, width, height)
-        ctx.set_source_rgba(self.bg, self.bg, self.bg, 1)
-        ctx.fill()
-
-        ctx.translate(width / 2, height / 2)
-        ctx.set_line_width(width * self.linewidth / 10000)
+        ctx = self.prep_context(surface, size)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
         x0 = y0 = None
