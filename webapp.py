@@ -65,7 +65,9 @@ def one():
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
-    for paramdef, thing, val in params:
+    for paramdef, thing, extra_name, val in params:
+        if extra_name is not None and extra_name not in TheRender().extras:
+            continue
         name = thing.name + " " + paramdef.type.name
         adj_thumbs = []
         for adj in paramdef.type.adjacent(val):
@@ -144,7 +146,7 @@ def make_harm_from_short_params(params, npend):
     harm = Harmonograph()
     harm.add_dimension("x", [FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
     harm.add_dimension("y", [FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
-    harm.add_dimension("z", [FullWave.from_short_params(f"z{i}", params) for i in range(npend)])
+    harm.add_dimension("j", [FullWave.from_short_params(f"j{i}", params) for i in range(1)], extra=True)
     harm.set_ramp(Ramp.from_short_params("ramp", params))
     harm.set_time_span(TimeSpan.from_short_params("ts", params))
     return harm
@@ -153,6 +155,6 @@ def make_random_harm(rnd, rampstop=500, npend=3):
     harm = Harmonograph()
     harm.add_dimension("x", [FullWave.make_random(f"x{i}", rnd) for i in range(npend)])
     harm.add_dimension("y", [FullWave.make_random(f"y{i}", rnd) for i in range(npend)])
-    harm.add_dimension("z", [FullWave.make_random(f"z{i}", rnd) for i in range(npend)])
+    harm.add_dimension("j", [FullWave.make_random(f"j{i}", rnd) for i in range(1)], extra=True)
     harm.set_ramp(Ramp("ramp", rampstop))
     return harm

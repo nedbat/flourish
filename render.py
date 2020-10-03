@@ -4,6 +4,8 @@ from io import BytesIO
 import cairo
 
 class Render:
+    extras = []
+
     def __init__(self, linewidth=5, alpha=1, bg=1):
         self.linewidth = linewidth
         self.alpha = alpha
@@ -42,6 +44,8 @@ class ElegantLine(Render):
         ctx.stroke()
 
 class ColorLine(Render):
+    extras = ["j"]
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -52,9 +56,9 @@ class ColorLine(Render):
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
         x0 = y0 = None
-        for i, (x, y, z) in enumerate(harm.points(["x", "y", "z"], dt=.01)):
+        for i, (x, y, h) in enumerate(harm.points(["x", "y", "j"], dt=.01)):
             if i > 0:
-                r, g, b = colorsys.hls_to_rgb(z, .5, 1)
+                r, g, b = colorsys.hls_to_rgb(h, .5, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
                 ctx.move_to(x0 * maxx, y0 * maxy)
                 ctx.line_to(x * maxx, y * maxy)

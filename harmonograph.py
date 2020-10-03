@@ -68,16 +68,20 @@ class Parameterized:
         return cls(name=name, **kwargs)
 
     def param_things(self):
-        return self
+        """
+        Produce all your things with parameters, and their extra-name if
+        they are extra.
+        """
+        yield self, None
 
     def parameters(self):
-        for thing in self.param_things():
+        for thing, extra_name in self.param_things():
             for field in thing.paramdefs():
-                yield (field, thing, getattr(thing, field.name))
+                yield (field, thing, extra_name, getattr(thing, field.name))
 
     def short_parameters(self):
         shorts = {}
-        for thing in self.param_things():
+        for thing, extra_name in self.param_things():
             for field in thing.paramdefs():
                 key = thing.name + field.type.key
                 val = getattr(thing, field.name)
@@ -182,9 +186,12 @@ class Harmonograph(Parameterized):
     def __init__(self):
         self.dimensions = {}
         self.set_time_span(TimeSpan("ts", 900, 200))
+        self.extras = set()
 
-    def add_dimension(self, name, waves):
+    def add_dimension(self, name, waves, extra=False):
         self.dimensions[name] = waves
+        if extra:
+            self.extras.add(name)
 
     def set_ramp(self, ramp):
         self.ramp = ramp
@@ -211,8 +218,8 @@ class Harmonograph(Parameterized):
             yield pt
 
     def param_things(self):
-        for dim in self.dimensions.values():
+        for dim_name, dim in self.dimensions.items():
             for wave in dim:
-                yield wave
-        yield self.timespan
-        yield self.ramp
+                yield wave, (dim_name if dim_name in self.extras else None)
+        yield self.timespan, None
+        yield self.ramp, None
