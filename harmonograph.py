@@ -178,14 +178,6 @@ class TimeSpan(Parameterized):
         repr=repr,
         )
 
-def RandWave(rnd, amp, nfreq, sigma, stop):
-    wave = Wave(
-        amp=rnd.uniform(0, amp),
-        freq=rnd.randint(1, nfreq) + rnd.gauss(0, sigma),
-        phase=rnd.uniform(0, 2*math.pi)
-    )
-    return Ramp(wave, stop=stop)
-
 class Harmonograph(Parameterized):
     def __init__(self):
         self.dimensions = {}
