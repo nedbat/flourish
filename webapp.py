@@ -61,12 +61,13 @@ def many():
 def one():
     params = dict(request.args)
     harm = make_harm_from_short_params(params, npend=NPEND)
-    svg = draw_svg(TheRender(), harm=harm, size=(1920//2, 1080//2))
+    render = TheRender()
+    svg = draw_svg(render, harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
     for paramdef, thing, extra_name, val in params:
-        if extra_name is not None and extra_name not in TheRender().extras:
+        if extra_name is not None and extra_name not in render.extras:
             continue
         name = thing.name + " " + paramdef.type.name
         adj_thumbs = []
