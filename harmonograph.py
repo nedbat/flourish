@@ -127,8 +127,8 @@ class FullWave(Parameterized):
         from_short=lambda s: float(s) / 10000 * 2 * math.pi,
         )
 
-    def __call__(self, t):
-        return self.amp * np.sin((self.freq + self.tweq) * t + self.phase)
+    def __call__(self, t, speed=1):
+        return self.amp * np.sin((self.freq * speed + self.tweq) * t + self.phase)
 
 
 @dataclass
@@ -160,8 +160,20 @@ class TimeSpan(Parameterized):
         repr=repr,
         )
 
+@dataclass
 class Harmonograph(Parameterized):
-    def __init__(self):
+    speed: Parameter(
+        name="speed",
+        key="sp",
+        default=1.0,
+        adjacent=lambda v: [v*.6, v*.8, v*1.2, v*1.4],
+        to_short=lambda v: int(v * 100),
+        from_short=lambda s: float(s) / 100,
+        )
+
+    def __init__(self, name="", speed=1.0):
+        self.name = name
+        self.speed = speed
         self.dimensions = {}
         self.set_time_span(TimeSpan("ts", 900, 200))
         self.extras = set()
@@ -189,7 +201,7 @@ class Harmonograph(Parameterized):
             dim = self.dimensions[dim_name]
             val = 0.0
             for wave in dim:
-                val += wave(t)
+                val += wave(t, self.speed)
             val *= self.ramp(t)
             pts.append(val)
         for pt in zip(*pts):
@@ -199,5 +211,6 @@ class Harmonograph(Parameterized):
         for dim_name, dim in self.dimensions.items():
             for wave in dim:
                 yield wave, (dim_name if dim_name in self.extras else None)
+        yield self, None
         yield self.timespan, None
         yield self.ramp, None

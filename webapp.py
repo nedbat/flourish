@@ -144,7 +144,7 @@ def one_url(route, harm, **kwargs):
     return f"{route}?{q}"
 
 def make_harm_from_short_params(params, npend):
-    harm = Harmonograph()
+    harm = Harmonograph.from_short_params("", params)
     harm.add_dimension("x", [FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
     harm.add_dimension("y", [FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
     harm.add_dimension("j", [FullWave.from_short_params(f"j{i}", params) for i in range(1)], extra=True)
