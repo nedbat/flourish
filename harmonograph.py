@@ -127,30 +127,8 @@ class FullWave(Parameterized):
         from_short=lambda s: float(s) / 10000 * 2 * math.pi,
         )
 
-    def __post_init__(self):
-        self.signal = _Wave(self.amp, self.freq + self.tweq, self.phase)
-
     def __call__(self, t):
-        return self.signal(t)
-
-
-@dataclass
-class _Wave:
-    amp: float
-    freq: float
-    phase: float = 0.0
-    offset: float = 0.0
-
-    def __call__(self, t):
-        return self.amp * np.sin(self.freq * t + self.phase) + self.offset
-
-def Wave(amp=None, freq=None, phase=0.0, min=None, max=None):
-    if amp is None:
-        amp = (max - min) / 2
-        offset = (min + max) / 2
-    else:
-        offset = 0.0
-    return _Wave(amp, freq, phase, offset)
+        return self.amp * np.sin((self.freq + self.tweq) * t + self.phase)
 
 
 @dataclass
