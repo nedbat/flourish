@@ -194,7 +194,7 @@ class Harmonograph(Parameterized):
         key="sp",
         default=1.0,
         places=2,
-        adjacent=lambda v: [v*.6, v*.8, v*1.2, v*1.4],
+        adjacent=lambda v: [v*.8*.8, v*.8, v/.8, v/.8/.8],
         )
 
     def __init__(self, name="", speed=1.0):
