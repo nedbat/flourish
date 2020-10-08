@@ -1,6 +1,8 @@
 import functools
+import itertools
 import json
 import random
+import re
 import urllib.parse
 from dataclasses import dataclass
 from io import BytesIO
@@ -20,6 +22,12 @@ TheRender = functools.partial(ColorLine, linewidth=10, alpha=.5)
 TheRender = functools.partial(ElegantLine, linewidth=3, alpha=1)
 
 NPEND = 3
+
+def dict_to_slug(d):
+    return "".join(itertools.chain.from_iterable(d.items()))
+
+def slug_to_dict(s):
+    return dict(re.findall(r"([a-z]+)(-?\d+)", s))
 
 @dataclass
 class Thumb:
@@ -57,9 +65,9 @@ def many():
         thumbs.append(Thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
 
-@app.route("/one")
-def one():
-    params = dict(request.args)
+@app.route("/one/<slug>")
+def one(slug):
+    params = slug_to_dict(slug)
     harm = make_harm_from_short_params(params, npend=NPEND)
     render = TheRender()
     svg = draw_svg(render, harm=harm, size=(1920//2, 1080//2))
@@ -88,9 +96,9 @@ def one():
         download_url=download_url,
     )
 
-@app.route("/png")
-def png():
-    params = dict(request.args)
+@app.route("/png/<slug>")
+def png(slug):
+    params = slug_to_dict(slug)
     harm = make_harm_from_short_params(params, npend=NPEND)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
@@ -98,9 +106,9 @@ def png():
 
 STATE_KEY = "Flourish State"
 
-@app.route("/download")
-def download():
-    params = dict(request.args)
+@app.route("/download/<slug>")
+def download(slug):
+    params = slug_to_dict(slug)
     harm = make_harm_from_short_params(params, npend=NPEND)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
@@ -139,23 +147,26 @@ def upload_file():
 
 def one_url(route, harm, **kwargs):
     qargs = harm.short_parameters()
-    qargs.update(kwargs)
-    q = urllib.parse.urlencode(qargs)
-    return f"{route}?{q}"
+    qargs.update({k:str(v) for k, v in kwargs.items()})
+    slug = dict_to_slug(qargs)
+    return f"{route}/{slug}"
+
+def abc(i):
+    return "abcdefghijklmnopqrstuvwxyz"[i]
 
 def make_harm_from_short_params(params, npend):
     harm = Harmonograph.from_short_params("", params)
-    harm.add_dimension("x", [FullWave.from_short_params(f"x{i}", params) for i in range(npend)])
-    harm.add_dimension("y", [FullWave.from_short_params(f"y{i}", params) for i in range(npend)])
-    harm.add_dimension("j", [FullWave.from_short_params(f"j{i}", params) for i in range(1)], extra=True)
+    harm.add_dimension("x", [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)])
+    harm.add_dimension("y", [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)])
+    harm.add_dimension("j", [FullWave.from_short_params("j", params)], extra=True)
     harm.set_ramp(Ramp.from_short_params("ramp", params))
     harm.set_time_span(TimeSpan.from_short_params("ts", params))
     return harm
 
 def make_random_harm(rnd, rampstop=500, npend=3):
     harm = Harmonograph()
-    harm.add_dimension("x", [FullWave.make_random(f"x{i}", rnd) for i in range(npend)])
-    harm.add_dimension("y", [FullWave.make_random(f"y{i}", rnd) for i in range(npend)])
-    harm.add_dimension("j", [FullWave.make_random(f"j{i}", rnd) for i in range(1)], extra=True)
+    harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd) for i in range(npend)])
+    harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd) for i in range(npend)])
+    harm.add_dimension("j", [FullWave.make_random("j", rnd)], extra=True)
     harm.set_ramp(Ramp("ramp", rampstop))
     return harm
