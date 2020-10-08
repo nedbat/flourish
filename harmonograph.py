@@ -9,16 +9,51 @@ DRAWW = WIDTH * .9
 DRAWH = HEIGHT * .9
 
 
-@dataclass
 class Parameter:
-    name: str
-    key: str
-    default: float
-    adjacent: object = lambda v: []
-    random: object = None
-    to_short: object = str
-    from_short: object = int
-    repr: object = lambda v: format(v, ".3f")
+    def __init__(self,
+        name, key, default,
+        places=1, scale=1.0, adjacent_step=None,
+        adjacent=None, random=None, to_short=None, from_short=None,
+    ):
+        self.name = name
+        self.key = key
+        self.default = default
+        self.places = places
+        self.scale = scale
+        self.adjacent_step = adjacent_step
+        self.random = random
+        if adjacent is not None:
+            self.adjacent = adjacent
+        if to_short is not None:
+            self.to_short = to_short
+        if from_short is not None:
+            self.from_short = from_short
+
+    def adjacent(self, v):
+        d = self.adjacent_step
+        if d is None:
+            return []
+        else:
+            return [v - 2 * d, v - d, v + d, v + 2 * d]
+
+    def to_short(self, v):
+        if isinstance(self.default, float):
+            return str(int(v / self.scale * 10 ** self.places))
+        else:
+            return str(v)
+
+    def from_short(self, s):
+        if isinstance(self.default, float):
+            return float(s) / 10 ** self.places * self.scale
+        else:
+            return int(s)
+
+    def repr(self, v):
+        if isinstance(self.default, float):
+            return format(v, f".{self.places}f")
+        else:
+            return repr(v)
+
 
 @dataclass
 class Parameterized:
@@ -96,37 +131,33 @@ class FullWave(Parameterized):
         name="frequency",
         key="f",
         default=2,
-        adjacent=lambda v: [v-2, v-1, v+1, v+2],
+        adjacent_step=1,
         random=lambda rnd: rnd.randint(1, 5),
-        repr=repr,
         )
     amp: Parameter(
         name="amplitude",
         key="a",
         default=.5,
-        adjacent=lambda v: [v-.4, v-.2, v+.2, v+.4],
+        places=3,
+        adjacent_step=.2,
         random=lambda rnd: rnd.uniform(0, 1),
-        to_short=lambda v: int(v * 1000),
-        from_short=lambda s: float(s) / 1000,
         )
     tweq: Parameter(
         name="frequency tweak",
         key="t",
         default=0.0,
-        adjacent=lambda v: [v-.0008, v-.0004, v+.0004, v+.0008],
+        places=6,
+        adjacent_step=.0004,
         random=lambda rnd: rnd.gauss(0, .005),
-        to_short=lambda v: int(v * 1_000_000),
-        from_short=lambda s: float(s) / 1_000_000,
-        repr=lambda v: format(v, ".6f")
         )
     phase: Parameter(
         name="phase",
         key="p",
         default=0.0,
-        adjacent=lambda v: [v-.4, v-.2, v+.2, v+.4],
+        places=4,
+        scale=2 * math.pi,
+        adjacent_step=.2,
         random=lambda rnd: rnd.uniform(0, 2 * math.pi),
-        to_short=lambda v: int(v / (2 * math.pi) * 10000),
-        from_short=lambda s: float(s) / 10000 * 2 * math.pi,
         )
 
     def __call__(self, t, speed=1):
@@ -151,15 +182,13 @@ class TimeSpan(Parameterized):
         name="center",
         key="c",
         default=900,
-        adjacent=lambda v: [v-200, v-100, v+100, v+200],
-        repr=repr,
+        adjacent_step=100,
         )
     width: Parameter(
         name="width",
         key="w",
         default=200,
-        adjacent=lambda v: [v-100, v-50, v+50, v+100],
-        repr=repr,
+        adjacent_step=50,
         )
 
 @dataclass
@@ -168,9 +197,8 @@ class Harmonograph(Parameterized):
         name="speed",
         key="sp",
         default=1.0,
+        places=2,
         adjacent=lambda v: [v*.6, v*.8, v*1.2, v*1.4],
-        to_short=lambda v: int(v * 100),
-        from_short=lambda s: float(s) / 100,
         )
 
     def __init__(self, name="", speed=1.0):
