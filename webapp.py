@@ -65,7 +65,7 @@ def many():
         thumbs.append(Thumb(harm, size=size))
     return render_template("many.html", thumbs=thumbs)
 
-@app.route("/one/<slug>")
+@app.route("/one/<path:slug>")
 def one(slug):
     params = slug_to_dict(slug)
     harm = make_harm_from_short_params(params, npend=NPEND)
@@ -82,10 +82,12 @@ def one(slug):
         for adj in paramdef.type.adjacent(val):
             adj_params = dict(shorts)
             adj_key = thing.name + paramdef.type.key
-            adj_params[adj_key] = paramdef.type.to_short(adj)
+            # Experimenting with slug/delta urls...
+            one_param = {adj_key: str(paramdef.type.to_short(adj))}
+            adj_params.update(one_param)
             adj_harm = make_harm_from_short_params(adj_params, npend=NPEND)
             adj_repr = paramdef.type.repr(adj)
-            adj_thumbs.append((adj_repr, Thumb(adj_harm, size=(192, 108))))
+            adj_thumbs.append((adj_repr, dict_to_slug(one_param), Thumb(adj_harm, size=(192, 108))))
         param_display.append((name, adj_thumbs))
     download_url = one_url("/download", harm, sx=1920, sy=1080)
     return render_template(
