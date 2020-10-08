@@ -96,7 +96,9 @@ class FullWave(Parameterized):
         name="frequency",
         key="f",
         default=2,
+        adjacent=lambda v: [v-2, v-1, v+1, v+2],
         random=lambda rnd: rnd.randint(1, 5),
+        repr=repr,
         )
     amp: Parameter(
         name="amplitude",
