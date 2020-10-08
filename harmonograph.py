@@ -4,10 +4,6 @@ from dataclasses import dataclass
 
 import numpy as np
 
-WIDTH, HEIGHT = 2048, 2048
-DRAWW = WIDTH * .9
-DRAWH = HEIGHT * .9
-
 
 class Parameter:
     def __init__(self,
