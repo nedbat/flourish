@@ -220,7 +220,7 @@ class Harmonograph(Parameterized):
         t = np.arange(
             start=self.timespan.center - ts_half,
             stop=self.timespan.center + ts_half,
-            step=dt,
+            step=dt / self.speed,
         )
         pts = []
         for dim_name in dims:
