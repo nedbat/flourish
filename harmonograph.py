@@ -156,8 +156,8 @@ class FullWave(Parameterized):
         random=lambda rnd: rnd.uniform(0, 2 * math.pi),
         )
 
-    def __call__(self, t, speed=1):
-        return self.amp * np.sin((self.freq * speed + self.tweq) * t + self.phase)
+    def __call__(self, t, density=1):
+        return self.amp * np.sin((self.freq * density + self.tweq) * t + self.phase)
 
 
 @dataclass
@@ -189,17 +189,17 @@ class TimeSpan(Parameterized):
 
 @dataclass
 class Harmonograph(Parameterized):
-    speed: Parameter(
-        name="speed",
-        key="sp",
+    density: Parameter(
+        name="density",
+        key="d",
         default=1.0,
         places=2,
         adjacent=lambda v: [v*.8*.8, v*.8, v/.8, v/.8/.8],
         )
 
-    def __init__(self, name="", speed=1.0):
+    def __init__(self, name="", density=1.0):
         self.name = name
-        self.speed = speed
+        self.density = density
         self.dimensions = {}
         self.set_time_span(TimeSpan("ts", 900, 200))
         self.extras = set()
@@ -220,14 +220,14 @@ class Harmonograph(Parameterized):
         t = np.arange(
             start=self.timespan.center - ts_half,
             stop=self.timespan.center + ts_half,
-            step=dt / self.speed,
+            step=dt / self.density,
         )
         pts = []
         for dim_name in dims:
             dim = self.dimensions[dim_name]
             val = 0.0
             for wave in dim:
-                val += wave(t, self.speed)
+                val += wave(t, self.density)
             val *= self.ramp(t)
             pts.append(val)
         for pt in zip(*pts):
