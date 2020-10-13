@@ -1,10 +1,26 @@
-function showAbout() {
-    console.log("SHOWING");
-    document.getElementById("scrim").style.display = "block";
-    document.getElementById("about").style.display = "block";
+function show(id) {
+    document.getElementById(id).style.display = "block";
 }
+function hide(id) {
+    document.getElementById(id).style.display = "none";
+}
+
+function showAbout() {
+    show("scrim");
+    show("about");
+}
+
 function hideAbout() {
-    console.log("HIDING");
-    document.getElementById("scrim").style.display = "none";
-    document.getElementById("about").style.display = "none";
+    hide("scrim");
+    hide("about");
+}
+
+function showSettings() {
+    show("scrim");
+    show("settings");
+}
+
+function hideSettings() {
+    hide("scrim");
+    hide("settings");
 }

@@ -5,7 +5,7 @@
 body {
     padding: 2rem;
 }
-h1, p, ul, li, input {
+h1, p, ul, li, input, label {
     text-align: left;
     font-family: 'Alegreya', serif;
     font-size: 1.6rem;
@@ -47,6 +47,17 @@ h1:first-of-type {
     opacity: 25%;
 }
 #about {
+    display: none;
+    position: absolute;
+    top: 8rem;
+    left: 50vw;
+    width: 60vw;
+    margin-left: -30vw;
+    border: 1px solid black;
+    background: white;
+    padding: 2em;
+}
+#settings {
     display: none;
     position: absolute;
     top: 8rem;

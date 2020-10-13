@@ -1,27 +1,32 @@
 import functools
 import itertools
 import json
+import os
 import random
 import re
 import urllib.parse
 from dataclasses import dataclass
 from io import BytesIO
 
+from dataclasses_json import dataclass_json
 from flask import (
     Flask, request,
-    render_template, render_template_string, send_file, redirect,
+    render_template, render_template_string,
+    make_response, redirect, send_file,
 )
+from flask_wtf import FlaskForm
 from PIL import Image, PngImagePlugin
+from wtforms import IntegerField, StringField
+from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph, Ramp, FullWave, TimeSpan
 from render import draw_png, draw_svg, ColorLine, ElegantLine
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
 
 TheRender = functools.partial(ColorLine, linewidth=10, alpha=.5)
 TheRender = functools.partial(ElegantLine, linewidth=3, alpha=1)
-
-NPEND = 3
 
 def dict_to_slug(d):
     return "".join(itertools.chain.from_iterable(d.items()))
@@ -56,19 +61,46 @@ class Thumb:
             title=title,
         )
 
-@app.route("/")
+@dataclass_json
+@dataclass
+class ManySettings:
+    npend: int = 3
+    style: str = "foob"
+
+MANY_SETTINGS_COOKIE = "manysettings"
+
+class ManySettingsForm(FlaskForm):
+    npend = IntegerField("Number of pendulums", validators=[DataRequired()])
+    style = StringField("Style")
+
+@app.route("/", methods=["GET", "POST"])
 def many():
+    cookie_settings = request.cookies.get(MANY_SETTINGS_COOKIE)
+    if cookie_settings is not None:
+        settings = ManySettings.from_json(cookie_settings)
+    else:
+        settings = ManySettings()
     size = (192, 108)
     thumbs = []
     for _ in range(30):
-        harm = make_random_harm(random, npend=NPEND)
+        harm = make_random_harm(random, npend=settings.npend)
         thumbs.append(Thumb(harm, size=size))
-    return render_template("many.html", thumbs=thumbs)
+    form = ManySettingsForm(obj=settings)
+    return render_template("many.html", thumbs=thumbs, form=form)
+
+@app.route("/manysettings", methods=["POST"])
+def manysettings():
+    form = ManySettingsForm()
+    settings = ManySettings()
+    form.populate_obj(settings)
+    resp = make_response(redirect("/"))
+    resp.set_cookie(MANY_SETTINGS_COOKIE, settings.to_json())
+    return resp
 
 @app.route("/one/<path:slug>")
 def one(slug):
     params = slug_to_dict(slug)
-    harm = make_harm_from_short_params(params, npend=NPEND)
+    harm = make_harm_from_short_params(params)
     render = TheRender()
     svg = draw_svg(render, harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
@@ -85,7 +117,7 @@ def one(slug):
             # Experimenting with slug/delta urls...
             one_param = {adj_key: str(paramdef.type.to_short(adj))}
             adj_params.update(one_param)
-            adj_harm = make_harm_from_short_params(adj_params, npend=NPEND)
+            adj_harm = make_harm_from_short_params(adj_params)
             adj_repr = paramdef.type.repr(adj)
             adj_thumbs.append((adj_repr, dict_to_slug(one_param), Thumb(adj_harm, size=(192, 108))))
         param_display.append((name, adj_thumbs))
@@ -101,7 +133,7 @@ def one(slug):
 @app.route("/png/<slug>")
 def png(slug):
     params = slug_to_dict(slug)
-    harm = make_harm_from_short_params(params, npend=NPEND)
+    harm = make_harm_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
@@ -111,7 +143,7 @@ STATE_KEY = "Flourish State"
 @app.route("/download/<slug>")
 def download(slug):
     params = slug_to_dict(slug)
-    harm = make_harm_from_short_params(params, npend=NPEND)
+    harm = make_harm_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     im = Image.open(png_bytes)
@@ -156,7 +188,11 @@ def one_url(route, harm, **kwargs):
 def abc(i):
     return "abcdefghijklmnopqrstuvwxyz"[i]
 
-def make_harm_from_short_params(params, npend):
+def make_harm_from_short_params(params):
+    # Deduce the number of pendulums from the parameters
+    xs = set(k[1] for k in params if k.startswith("x"))
+    npend = len(xs)
+
     harm = Harmonograph.from_short_params("", params)
     harm.add_dimension("x", [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)])
     harm.add_dimension("y", [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)])

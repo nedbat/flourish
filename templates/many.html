@@ -2,6 +2,7 @@
 
 {% block leftnav %}
     <a href="/" title="Reload">{% include "icon_refresh.svg" %}</a>
+    <a href="#" id="button_settings" onClick="showSettings()" title="Settings">{% include "icon_settings.svg" %}</a>
     <a href="#" id="button_about" onClick="showAbout()" title="What is this?">{% include "icon_info.svg" %}</a>
 {% endblock %}
 
@@ -15,4 +16,15 @@
     {{ thumb.as_html()|safe }}
 {% endfor %}
 </div>
+{% endblock %}
+
+{% block settings %}
+    <h1>Settings</h1>
+
+    <form method="POST" action="/manysettings">
+        {{ form.csrf_token }}
+        <p>{{ form.npend.label }} {{ form.npend(size=5) }}</p>
+        <p>{{ form.style.label }} {{ form.style(size=20) }}</p>
+        <p><input type="submit" value="Go"></p>
+    </form>
 {% endblock %}

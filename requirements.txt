@@ -1,4 +1,6 @@
+dataclasses-json
 Flask
+Flask-WTF
 gunicorn
 numpy
 Pillow
