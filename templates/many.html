@@ -24,7 +24,9 @@
     <form method="POST" action="/manysettings">
         {{ form.csrf_token }}
         <p>{{ form.npend.label }} {{ form.npend(size=5) }}</p>
+        {#
         <p>{{ form.style.label }} {{ form.style(size=20) }}</p>
+        #}
         <p><input type="submit" value="Go"></p>
     </form>
 {% endblock %}
