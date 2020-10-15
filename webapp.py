@@ -16,7 +16,7 @@ from flask import (
 )
 from flask_wtf import FlaskForm
 from PIL import Image, PngImagePlugin
-from wtforms import IntegerField, StringField
+from wtforms import BooleanField, IntegerField, StringField
 from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph, Ramp, FullWave, TimeSpan
@@ -66,12 +66,20 @@ class Thumb:
 class ManySettings:
     npend: int = 3
     style: str = "foob"
+    xy_symmetry: bool = True
+    x_symmetry: bool = True
+    y_symmetry: bool = True
+    no_symmetry: bool = True
 
 MANY_SETTINGS_COOKIE = "manysettings"
 
 class ManySettingsForm(FlaskForm):
     npend = IntegerField("Number of pendulums", validators=[DataRequired()])
     style = StringField("Style")
+    xy_symmetry = BooleanField("XY Symmetry")
+    x_symmetry = BooleanField("X Symmetry")
+    y_symmetry = BooleanField("Y Symmetry")
+    no_symmetry = BooleanField("No Symmetry")
 
 @app.route("/", methods=["GET", "POST"])
 def many():
@@ -82,9 +90,19 @@ def many():
         settings = ManySettings()
     size = (192, 108)
     thumbs = []
-    for _ in range(30):
+    while len(thumbs) < 30:
         harm = make_random_harm(random, npend=settings.npend)
-        thumbs.append(Thumb(harm, size=size))
+        keep = False
+        if harm.is_xy_symmetric():
+            keep = settings.xy_symmetry
+        elif harm.is_x_symmetric():
+            keep = settings.x_symmetry
+        elif harm.is_y_symmetric():
+            keep = settings.y_symmetry
+        else:
+            keep = settings.no_symmetry
+        if keep:
+            thumbs.append(Thumb(harm, size=size))
     form = ManySettingsForm(obj=settings)
     return render_template("many.html", thumbs=thumbs, form=form)
 

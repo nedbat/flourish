@@ -240,3 +240,28 @@ class Harmonograph(Parameterized):
         yield self, None
         yield self.timespan, None
         yield self.ramp, None
+
+    def is_xy_symmetric(self):
+        return (
+            all(odd(w.freq) for w in self.dimensions["x"]) and
+            all(odd(w.freq) for w in self.dimensions["y"])
+        )
+
+    def is_x_symmetric(self):
+        return (
+            all(odd(w.freq) for w in self.dimensions["x"]) and
+            all(even(w.freq) for w in self.dimensions["y"])
+        )
+
+    def is_y_symmetric(self):
+        return (
+            all(even(w.freq) for w in self.dimensions["x"]) and
+            all(odd(w.freq) for w in self.dimensions["y"])
+        )
+
+
+def even(n):
+    return n % 2 == 0
+
+def odd(n):
+    return n % 2 == 1

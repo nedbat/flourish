@@ -24,6 +24,10 @@
     <form method="POST" action="/manysettings">
         {{ form.csrf_token }}
         <p>{{ form.npend.label }} {{ form.npend(size=5) }}</p>
+        <p>{{ form.xy_symmetry.label }} {{ form.xy_symmetry() }}</p>
+        <p>{{ form.x_symmetry.label }} {{ form.x_symmetry() }}</p>
+        <p>{{ form.y_symmetry.label }} {{ form.y_symmetry() }}</p>
+        <p>{{ form.no_symmetry.label }} {{ form.no_symmetry() }}</p>
         {#
         <p>{{ form.style.label }} {{ form.style(size=20) }}</p>
         #}
