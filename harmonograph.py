@@ -128,7 +128,7 @@ class FullWave(Parameterized):
         key="f",
         default=2,
         adjacent_step=1,
-        random=lambda rnd: rnd.randint(1, 5),
+        random=lambda rnd: rnd.randint(1, 6),
         )
     amp: Parameter(
         name="amplitude",
@@ -136,7 +136,7 @@ class FullWave(Parameterized):
         default=.5,
         places=3,
         adjacent_step=.2,
-        random=lambda rnd: rnd.uniform(0, 1),
+        random=lambda rnd: rnd.uniform(0.1, 1.0),
         )
     tweq: Parameter(
         name="frequency tweak",
@@ -259,6 +259,31 @@ class Harmonograph(Parameterized):
             all(odd(w.freq) for w in self.dimensions["y"])
         )
 
+    @classmethod
+    def make_from_short_params(cls, params):
+        # Deduce the number of pendulums from the parameters
+        xs = set(k[1] for k in params if k.startswith("x"))
+        npend = len(xs)
+
+        harm = cls.from_short_params("", params)
+        harm.add_dimension("x", [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)])
+        harm.add_dimension("y", [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)])
+        harm.add_dimension("j", [FullWave.from_short_params("j", params)], extra=True)
+        harm.set_ramp(Ramp.from_short_params("ramp", params))
+        harm.set_time_span(TimeSpan.from_short_params("ts", params))
+        return harm
+
+    @classmethod
+    def make_random(cls, rnd, rampstop=500, npend=3):
+        harm = Harmonograph()
+        harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd) for i in range(npend)])
+        harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd) for i in range(npend)])
+        harm.add_dimension("j", [FullWave.make_random("j", rnd)], extra=True)
+        harm.set_ramp(Ramp("ramp", rampstop))
+        return harm
+
+def abc(i):
+    return "abcdefghijklmnopqrstuvwxyz"[i]
 
 def even(n):
     return n % 2 == 0

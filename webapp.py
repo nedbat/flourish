@@ -19,7 +19,7 @@ from PIL import Image, PngImagePlugin
 from wtforms import BooleanField, IntegerField, StringField
 from wtforms.validators import DataRequired
 
-from harmonograph import Harmonograph, Ramp, FullWave, TimeSpan
+from harmonograph import Harmonograph
 from render import draw_png, draw_svg, ColorLine, ElegantLine
 
 app = Flask(__name__)
@@ -91,7 +91,7 @@ def many():
     size = (192, 108)
     thumbs = []
     while len(thumbs) < 30:
-        harm = make_random_harm(random, npend=settings.npend)
+        harm = Harmonograph.make_random(random, npend=settings.npend)
         keep = False
         if harm.is_xy_symmetric():
             keep = settings.xy_symmetry
@@ -118,7 +118,7 @@ def manysettings():
 @app.route("/one/<path:slug>")
 def one(slug):
     params = slug_to_dict(slug)
-    harm = make_harm_from_short_params(params)
+    harm = Harmonograph.make_from_short_params(params)
     render = TheRender()
     svg = draw_svg(render, harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
@@ -135,7 +135,7 @@ def one(slug):
             # Experimenting with slug/delta urls...
             one_param = {adj_key: str(paramdef.type.to_short(adj))}
             adj_params.update(one_param)
-            adj_harm = make_harm_from_short_params(adj_params)
+            adj_harm = Harmonograph.make_from_short_params(adj_params)
             adj_repr = paramdef.type.repr(adj)
             adj_thumbs.append((adj_repr, dict_to_slug(one_param), Thumb(adj_harm, size=(192, 108))))
         param_display.append((name, adj_thumbs))
@@ -151,7 +151,7 @@ def one(slug):
 @app.route("/png/<slug>")
 def png(slug):
     params = slug_to_dict(slug)
-    harm = make_harm_from_short_params(params)
+    harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
@@ -161,7 +161,7 @@ STATE_KEY = "Flourish State"
 @app.route("/download/<slug>")
 def download(slug):
     params = slug_to_dict(slug)
-    harm = make_harm_from_short_params(params)
+    harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     im = Image.open(png_bytes)
@@ -202,27 +202,3 @@ def one_url(route, harm, **kwargs):
     qargs.update({k:str(v) for k, v in kwargs.items()})
     slug = dict_to_slug(qargs)
     return f"{route}/{slug}"
-
-def abc(i):
-    return "abcdefghijklmnopqrstuvwxyz"[i]
-
-def make_harm_from_short_params(params):
-    # Deduce the number of pendulums from the parameters
-    xs = set(k[1] for k in params if k.startswith("x"))
-    npend = len(xs)
-
-    harm = Harmonograph.from_short_params("", params)
-    harm.add_dimension("x", [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)])
-    harm.add_dimension("y", [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)])
-    harm.add_dimension("j", [FullWave.from_short_params("j", params)], extra=True)
-    harm.set_ramp(Ramp.from_short_params("ramp", params))
-    harm.set_time_span(TimeSpan.from_short_params("ts", params))
-    return harm
-
-def make_random_harm(rnd, rampstop=500, npend=3):
-    harm = Harmonograph()
-    harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd) for i in range(npend)])
-    harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd) for i in range(npend)])
-    harm.add_dimension("j", [FullWave.make_random("j", rnd)], extra=True)
-    harm.set_ramp(Ramp("ramp", rampstop))
-    return harm
