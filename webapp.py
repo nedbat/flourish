@@ -17,6 +17,7 @@ from flask import (
 from flask_wtf import FlaskForm
 from PIL import Image, PngImagePlugin
 from wtforms import BooleanField, IntegerField, StringField
+from wtforms.widgets.html5 import NumberInput
 from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph
@@ -74,12 +75,16 @@ class ManySettings:
 MANY_SETTINGS_COOKIE = "manysettings"
 
 class ManySettingsForm(FlaskForm):
-    npend = IntegerField("Number of pendulums", validators=[DataRequired()])
+    npend = IntegerField(
+        "Number of pendulums",
+        validators=[DataRequired()],
+        widget=NumberInput(min=1, max=9),
+    )
     style = StringField("Style")
-    xy_symmetry = BooleanField("XY Symmetry")
-    x_symmetry = BooleanField("X Symmetry")
-    y_symmetry = BooleanField("Y Symmetry")
-    no_symmetry = BooleanField("No Symmetry")
+    xy_symmetry = BooleanField("XY")
+    x_symmetry = BooleanField("X")
+    y_symmetry = BooleanField("Y")
+    no_symmetry = BooleanField("None")
 
 @app.route("/", methods=["GET", "POST"])
 def many():
