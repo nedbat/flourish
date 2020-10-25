@@ -21,7 +21,7 @@
 {% block settings %}
     <h1>Settings</h1>
 
-    <form method="POST" action="/manysettings">
+    <form name="many_settings" method="POST" action="/manysettings" onsubmit="return validateManySettings()">
         {{ form.csrf_token }}
         <p>{{ form.npend.label }} {{ form.npend(size=1) }}</p>
         <p>Symmetries to include:
@@ -33,6 +33,6 @@
         {#
         <p>{{ form.style.label }} {{ form.style(size=20) }}</p>
         #}
-        <p><input type="submit" value="Go"></p>
+        <p class="form-buttons"><input type="submit" value="Go"></p>
     </form>
 {% endblock %}

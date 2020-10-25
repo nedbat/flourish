@@ -24,3 +24,16 @@ function hideSettings() {
     hide("scrim");
     hide("settings");
 }
+
+function validateManySettings() {
+    if (
+        !document.many_settings.xy_symmetry.checked &&
+        !document.many_settings.x_symmetry.checked &&
+        !document.many_settings.y_symmetry.checked &&
+        !document.many_settings.no_symmetry.checked
+    ) {
+        window.alert("You must choose some kind of symmetry!");
+        return false;
+    }
+    return true;
+}

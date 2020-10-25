@@ -100,4 +100,7 @@ a {
 .nexts .thumb {
     margin: .5rem;
 }
-
+p.form-buttons {
+    text-align: right;
+    margin-bottom: 0;
+}
