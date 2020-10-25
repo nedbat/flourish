@@ -1,4 +1,5 @@
 import functools
+import hashlib
 import itertools
 import json
 import os
@@ -177,7 +178,9 @@ def download(slug):
     png_bytes = BytesIO()
     im.save(png_bytes, "PNG", pnginfo=info)
     png_bytes.seek(0)
-    return send_file(png_bytes, as_attachment=True, attachment_filename="flourish.png", mimetype="image/png")
+    hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
+    filename = f"flourish_{hash}.png"
+    return send_file(png_bytes, as_attachment=True, attachment_filename=filename, mimetype="image/png")
 
 @app.route("/upload")
 def upload():

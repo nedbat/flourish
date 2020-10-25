@@ -23,7 +23,7 @@
 
     <form method="POST" action="/manysettings">
         {{ form.csrf_token }}
-        <p>{{ form.npend.label }} {{ form.npend(size=5) }}</p>
+        <p>{{ form.npend.label }} {{ form.npend(size=1) }}</p>
         <p>Symmetries to include:
         <span class="short_check">{{ form.xy_symmetry() }} {{ form.xy_symmetry.label }}</span>
         <span class="short_check">{{ form.x_symmetry() }} {{ form.x_symmetry.label }}</span>
