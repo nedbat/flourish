@@ -159,6 +159,15 @@ class FullWave(Parameterized):
     def __call__(self, t, density=1):
         return self.amp * np.sin((self.freq * density + self.tweq) * t + self.phase)
 
+    @classmethod
+    def make_random(cls, name, rnd, limit=None):
+        wave = super().make_random(name, rnd)
+        if limit == "even":
+            wave.freq = rnd.randrange(2, 7, 2)
+        elif limit == "odd":
+            wave.freq = rnd.randrange(1, 7, 2)
+        return wave
+
 
 @dataclass
 class Ramp(Parameterized):
@@ -274,10 +283,20 @@ class Harmonograph(Parameterized):
         return harm
 
     @classmethod
-    def make_random(cls, rnd, rampstop=500, npend=3):
+    def make_random(cls, rnd, npend, syms, rampstop=500):
+        sym = rnd.choice(syms)
+        xlimit = ylimit = None
+        if sym == "X":
+            xlimit = "odd"
+            ylimit = "even"
+        elif sym == "Y":
+            xlimit = "even"
+            ylimit = "odd"
+        elif sym == "R":
+            xlimit = ylimit = "odd"
         harm = Harmonograph()
-        harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd) for i in range(npend)])
-        harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd) for i in range(npend)])
+        harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd, limit=xlimit) for i in range(npend)])
+        harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd, limit=ylimit) for i in range(npend)])
         harm.add_dimension("j", [FullWave.make_random("j", rnd)], extra=True)
         harm.set_ramp(Ramp("ramp", rampstop))
         return harm

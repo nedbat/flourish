@@ -93,22 +93,22 @@ def many():
         settings = ManySettings.from_json(cookie_settings)
     else:
         settings = ManySettings()
+    syms = ""
+    if settings.xy_symmetry:
+        syms += "R"
+    if settings.x_symmetry:
+        syms += "X"
+    if settings.y_symmetry:
+        syms += "Y"
+    if settings.no_symmetry:
+        syms += "N"
+
     size = (192, 108)
     thumbs = []
-    if settings.xy_symmetry or settings.x_symmetry or settings.y_symmetry or settings.no_symmetry:
+    if syms:
         while len(thumbs) < 30:
-            harm = Harmonograph.make_random(random, npend=settings.npend)
-            keep = False
-            if harm.is_xy_symmetric():
-                keep = settings.xy_symmetry
-            elif harm.is_x_symmetric():
-                keep = settings.x_symmetry
-            elif harm.is_y_symmetric():
-                keep = settings.y_symmetry
-            else:
-                keep = settings.no_symmetry
-            if keep:
-                thumbs.append(Thumb(harm, size=size))
+            harm = Harmonograph.make_random(random, npend=settings.npend, syms=syms)
+            thumbs.append(Thumb(harm, size=size))
     form = ManySettingsForm(obj=settings)
     return render_template("many.html", thumbs=thumbs, form=form)
 
