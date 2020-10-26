@@ -5,7 +5,6 @@ import json
 import os
 import random
 import re
-import urllib.parse
 from dataclasses import dataclass
 from io import BytesIO
 
@@ -197,8 +196,8 @@ def upload_file():
             im = Image.open(pngio)
             params = im.info.get(STATE_KEY)
             if params:
-                q = urllib.parse.urlencode(json.loads(params))
-                return redirect(f"/one?{q}")
+                slug = dict_to_slug(json.loads(params))
+                return redirect(f"/one/{slug}")
         except Exception:
             pass
         error = f"Couldn't find Flourish info in {uploaded_file.filename}"
