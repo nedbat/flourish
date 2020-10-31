@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 
-{% block leftnav %}
+{% block actions %}
     <a href="/" title="Back to random grid">{% include "icon_grid.svg" %}</a>
-    <a href="#" id="button_about" onClick="showAbout()" title="What is this?">{% include "icon_info.svg" %}</a>
-{% endblock %}
-
-{% block rightnav %}
     <a href="{{ download_url }}" title="Download PNG">{% include "icon_download.svg" %}</a>
+    <a href="#" id="button_about" onClick="showAbout()" title="What is this?">{% include "icon_info.svg" %}</a>
 {% endblock %}
 
 {% block content %}

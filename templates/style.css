@@ -14,20 +14,12 @@ h1, p, ul, li, input, label {
 h1:first-of-type {
     margin-top: 0;
 }
-#leftnav {
+#actions {
     text-align: left;
     width: 24px;
     height: 0;
 }
-#leftnav a {
-    display: block;
-    height: 48px;
-}
-#rightnav {
-    text-align: right;
-    height: 0;
-}
-#rightnav a {
+#actions a {
     display: block;
     height: 48px;
 }
