@@ -60,6 +60,17 @@ h1:first-of-type {
     background: white;
     padding: 2em;
 }
+#upload {
+    display: none;
+    position: absolute;
+    top: 8rem;
+    left: 50vw;
+    width: 60vw;
+    margin-left: -30vw;
+    border: 1px solid black;
+    background: white;
+    padding: 2em;
+}
 .short_check {
     margin-left: .5em;
     margin-right: .5em;

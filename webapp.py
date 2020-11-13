@@ -181,10 +181,6 @@ def download(slug):
     filename = f"flourish_{hash}.png"
     return send_file(png_bytes, as_attachment=True, attachment_filename=filename, mimetype="image/png")
 
-@app.route("/upload")
-def upload():
-    return render_template("upload.html")
-
 @app.route("/upload", methods=["POST"])
 def upload_file():
     uploaded_file = request.files["file"]

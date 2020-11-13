@@ -25,6 +25,16 @@ function hideSettings() {
     hide("settings");
 }
 
+function showUpload() {
+    show("scrim");
+    show("upload");
+}
+
+function hideUpload() {
+    hide("scrim");
+    hide("upload");
+}
+
 function validateManySettings() {
     if (
         !document.many_settings.xy_symmetry.checked &&
