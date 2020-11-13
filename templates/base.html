@@ -31,13 +31,13 @@
     <div id="scrim"></div>
 
     <aside id="settings">
-        <a href="#" class="close" id="about_close" onClick="hideSettings()">{% include "icon_close.svg" %}</a>
+        <a href="#" class="close" onClick="hideSettings()">{% include "icon_close.svg" %}</a>
         {% block settings %}
         {% endblock %}
     </aside>
 
     <aside id="about">
-        <a href="#" class="close" id="about_close" onClick="hideAbout()">{% include "icon_close.svg" %}</a>
+        <a href="#" class="close" onClick="hideAbout()">{% include "icon_close.svg" %}</a>
         <h1>Flourish</h1>
 
         <p>These are <a href="https://en.wikipedia.org/wiki/Harmonograph">harmonographs</a>,

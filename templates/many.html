@@ -2,9 +2,9 @@
 
 {% block actions %}
     <a href="/" title="Reload">{% include "icon_refresh.svg" %}</a>
-    <a href="#" id="button_settings" onClick="showSettings()" title="Settings">{% include "icon_settings.svg" %}</a>
-    <a href="#" id="button_upload" onClick="showUpload()" title="Upload">{% include "icon_upload.svg" %}</a>
-    <a href="#" id="button_about" onClick="showAbout()" title="What is this?">{% include "icon_info.svg" %}</a>
+    <a href="#" onClick="showSettings()" title="Settings">{% include "icon_settings.svg" %}</a>
+    <a href="#" onClick="showUpload()" title="Upload">{% include "icon_upload.svg" %}</a>
+    <a href="#" onClick="showAbout()" title="What is this?">{% include "icon_info.svg" %}</a>
 {% endblock %}
 
 {% block content %}
