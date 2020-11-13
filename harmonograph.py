@@ -250,24 +250,6 @@ class Harmonograph(Parameterized):
         yield self.timespan, None
         yield self.ramp, None
 
-    def is_xy_symmetric(self):
-        return (
-            all(odd(w.freq) for w in self.dimensions["x"]) and
-            all(odd(w.freq) for w in self.dimensions["y"])
-        )
-
-    def is_x_symmetric(self):
-        return (
-            all(odd(w.freq) for w in self.dimensions["x"]) and
-            all(even(w.freq) for w in self.dimensions["y"])
-        )
-
-    def is_y_symmetric(self):
-        return (
-            all(even(w.freq) for w in self.dimensions["x"]) and
-            all(odd(w.freq) for w in self.dimensions["y"])
-        )
-
     @classmethod
     def make_from_short_params(cls, params):
         # Deduce the number of pendulums from the parameters
@@ -303,9 +285,3 @@ class Harmonograph(Parameterized):
 
 def abc(i):
     return "abcdefghijklmnopqrstuvwxyz"[i]
-
-def even(n):
-    return n % 2 == 0
-
-def odd(n):
-    return n % 2 == 1
