@@ -16,11 +16,10 @@ RUN python -m venv venv && venv/bin/pip install --no-cache-dir -U pip
 COPY requirements.txt requirements.txt
 RUN venv/bin/pip install --no-cache-dir -r requirements.txt
 
-COPY . ./
+COPY --chown=flourish:flourish . ./
 RUN chmod +x docker_entry.sh
 
 ENV FLASK_APP webapp
-RUN chown -R flourish: ./
 USER flourish
 
 EXPOSE 5000
