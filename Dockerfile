@@ -12,9 +12,10 @@ RUN apt-get update \
 
 WORKDIR /usr/src/app
 
-RUN python -m venv venv && venv/bin/pip install --no-cache-dir -U pip
 COPY requirements.txt requirements.txt
-RUN venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN python -m venv venv \
+ && venv/bin/pip install --no-cache-dir -U pip \
+ && venv/bin/pip install --no-cache-dir -r requirements.txt
 
 COPY --chown=flourish:flourish . ./
 RUN chmod +x docker_entry.sh
