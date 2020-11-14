@@ -18,6 +18,7 @@ RUN venv/bin/pip install --no-cache-dir -r requirements.txt
 
 COPY *.py docker_entry.sh ./
 COPY templates templates/
+COPY static static/
 RUN chmod +x docker_entry.sh
 
 ENV FLASK_APP webapp
