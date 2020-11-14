@@ -181,8 +181,7 @@ class FullWave(Parameterized):
             freqq = (1, 7, 2)
 
         with ctx(freq, freqq):
-            with ctx(amp, 0.25):
-                return super().make_random(name, rnd)
+            return super().make_random(name, rnd)
 
 
 @dataclass
