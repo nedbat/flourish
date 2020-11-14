@@ -172,7 +172,7 @@ def download(slug):
     png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
     im = Image.open(png_bytes)
     info = PngImagePlugin.PngInfo()
-    info.add_text("Software", "https://nedbat-flourish.herokuapp.com")
+    info.add_text("Software", "https://flourish.nedbat.com")
     info.add_text(STATE_KEY, json.dumps(params))
     png_bytes = BytesIO()
     im.save(png_bytes, "PNG", pnginfo=info)
