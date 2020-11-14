@@ -1,0 +1,5 @@
+.git
+.ipynb_checpoints
+__pycache__
+*.pyc
+lab
