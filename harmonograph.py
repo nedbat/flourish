@@ -1,3 +1,5 @@
+import contextlib
+import contextvars
 import dataclasses
 import math
 from dataclasses import dataclass
@@ -121,6 +123,17 @@ class Parameterized:
                 shorts[key] = str(val)
         return shorts
 
+@contextlib.contextmanager
+def ctx(cvar, val):
+    token = cvar.set(val)
+    try:
+        yield
+    finally:
+        cvar.reset(token)
+
+amp = contextvars.ContextVar("amp")
+freq = contextvars.ContextVar("freq")
+
 @dataclass
 class FullWave(Parameterized):
     freq: Parameter(
@@ -128,7 +141,7 @@ class FullWave(Parameterized):
         key="f",
         default=2,
         adjacent_step=1,
-        random=lambda rnd: rnd.randint(1, 6),
+        random=lambda rnd: rnd.randrange(*freq.get((1, 6, 1))),
         )
     amp: Parameter(
         name="amplitude",
@@ -136,7 +149,7 @@ class FullWave(Parameterized):
         default=.5,
         places=3,
         adjacent_step=.2,
-        random=lambda rnd: rnd.uniform(0.1, 1.0),
+        random=lambda rnd: rnd.uniform(0.1, amp.get(1.0)),
         )
     tweq: Parameter(
         name="frequency tweak",
@@ -161,12 +174,15 @@ class FullWave(Parameterized):
 
     @classmethod
     def make_random(cls, name, rnd, limit=None):
-        wave = super().make_random(name, rnd)
+        freqq = (1, 7, 1)
         if limit == "even":
-            wave.freq = rnd.randrange(2, 7, 2)
+            freqq = (2, 7, 2)
         elif limit == "odd":
-            wave.freq = rnd.randrange(1, 7, 2)
-        return wave
+            freqq = (1, 7, 2)
+
+        with ctx(freq, freqq):
+            with ctx(amp, 0.25):
+                return super().make_random(name, rnd)
 
 
 @dataclass
