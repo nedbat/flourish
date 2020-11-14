@@ -8,3 +8,6 @@ dbuild:
 
 drun:
 	docker run --name flourish -p 8888:5000 --rm -e SECRET_KEY=secret nedbat/flourish:latest
+
+deploy:
+	ssh drop1 "cd flourish; git pull; cd ../drop1; make run"
