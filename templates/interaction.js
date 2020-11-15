@@ -5,33 +5,41 @@ function hide(id) {
     document.getElementById(id).style.display = "none";
 }
 
+function showScrim() {
+    document.body.classList.add("scrim");
+}
+
+function hideScrim() {
+    document.body.classList.remove("scrim");
+}
+
 function showAbout() {
-    show("scrim");
+    showScrim();
     show("about");
 }
 
 function hideAbout() {
-    hide("scrim");
+    hideScrim();
     hide("about");
 }
 
 function showSettings() {
-    show("scrim");
+    showScrim();
     show("settings");
 }
 
 function hideSettings() {
-    hide("scrim");
+    hideScrim();
     hide("settings");
 }
 
 function showUpload() {
-    show("scrim");
+    showScrim();
     show("upload");
 }
 
 function hideUpload() {
-    hide("scrim");
+    hideScrim();
     hide("upload");
 }
 

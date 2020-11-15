@@ -28,13 +28,15 @@ h1:first-of-type {
     max-width: 1000px;
     text-align: center;
 }
-#scrim {
-    display: none;
+body.scrim {
+    overflow: hidden;
+}
+body.scrim #scrim {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 1000%;
+    height: 100%;
     background: black;
     opacity: 25%;
 }
@@ -47,6 +49,8 @@ h1:first-of-type {
     border: 1px solid black;
     background: white;
     padding: 2em;
+    max-height: 80%;
+    overflow-y: scroll;
 }
 .short_check {
     margin-left: .5em;
