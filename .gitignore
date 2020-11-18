@@ -1,3 +1,4 @@
 *.pyc
 lab/
 .ipynb_checkpoints/
+.env

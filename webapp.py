@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from io import BytesIO
 
 from dataclasses_json import dataclass_json
+from dotenv import load_dotenv
 from flask import (
     Flask, request,
     render_template, render_template_string,
@@ -23,8 +24,9 @@ from wtforms.validators import DataRequired
 from harmonograph import Harmonograph
 from render import draw_png, draw_svg, ColorLine, ElegantLine
 
+load_dotenv()
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 TheRender = functools.partial(ColorLine, linewidth=10, alpha=.5)
 TheRender = functools.partial(ElegantLine, linewidth=3, alpha=1)

@@ -5,3 +5,4 @@ gunicorn
 numpy
 Pillow
 pycairo
+python-dotenv
