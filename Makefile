@@ -1,4 +1,13 @@
-.PHONY: run dbuild drun deploy
+.PHONY: sass livesass run dbuild drun deploy
+
+SCSS = templates/style.scss
+SASSARGS = --style=compact --sourcemap=none $(SCSS)
+
+sass:
+	sass $(SASSARGS) templates/style.css
+
+livesass:
+	sass --watch $(SASSARGS)
 
 run:
 	SECRET_KEY=5f352 WERKZEUG_DEBUG_PIN=off FLASK_APP=webapp FLASK_ENV=development flask run --port 6123
