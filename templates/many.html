@@ -8,11 +8,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="thumbs">
-{% for thumb in thumbs %}
-    {{ thumb.as_html()|safe }}
-{% endfor %}
-</div>
+    <div class="thumbs">
+    {% for thumb in thumbs %}
+        {{ thumb.as_html()|safe }}
+    {% endfor %}
+    </div>
 {% endblock %}
 
 {% block settings %}

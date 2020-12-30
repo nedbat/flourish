@@ -1,7 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&amp;display=swap");
 * { box-sizing: border-box; }
 
-body { padding: 2rem; }
+body { display: grid; grid-template: 48px 1fr / 1fr; grid-template-areas: "actions" "content"; margin: 0; padding: 2rem; }
+@media (min-width: 1000px) { body { grid-template: 1fr / 48px 1fr 48px; grid-template-areas: "actions content ."; } }
 body.scrim { overflow: hidden; }
 body.scrim #scrim { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 25%; }
 
@@ -9,10 +10,12 @@ h1, p, ul, li, input, label { text-align: left; font-family: 'Alegreya', serif; 
 
 h1:first-of-type { margin-top: 0; }
 
-#actions { text-align: left; width: 24px; height: 0; }
-#actions a { display: block; height: 48px; }
+#actions { grid-area: actions; text-align: center; height: 24px; }
+@media (min-width: 1000px) { #actions { text-align: left; width: 24px; height: 0; } }
+#actions a { display: inline-block; width: 48px; }
+@media (min-width: 1000px) { #actions a { display: block; height: 48px; } }
 
-#content { margin: 0 auto; max-width: 1000px; text-align: center; }
+#content { grid-area: content; margin: 0 auto; max-width: 1000px; text-align: center; }
 
 .dialog { display: none; position: absolute; top: 8rem; width: 60vw; left: 20vw; border: 1px solid black; background: white; padding: 2em; max-height: 80%; overflow-y: scroll; }
 
@@ -22,12 +25,15 @@ h1:first-of-type { margin-top: 0; }
 
 a { text-decoration: none; font-weight: 600; }
 
-.one { display: inline-block; border: 1px solid #eee; line-height: 0; }
+.one { display: inline-block; border: 1px solid #ccc; line-height: 0; }
+.one svg { width: 100%; height: auto; }
 
-.thumb { display: inline-block; border: 1px solid #eee; line-height: 0; }
-.thumb:hover { border-color: #888; }
+.thumb { display: inline-block; margin: 1px; border: 1px solid #ccc; line-height: 0; }
+.thumb:hover { border-color: #666; border-width: 2px; margin: 0; }
 
-.nexts { margin-top: 2rem; }
-.nexts .thumb { margin: .5rem; }
+.nexts { width: 210px; margin: 2rem auto 0; }
+@media (min-width: 476px) { .nexts { width: 420px; } }
+@media (min-width: 888px) { .nexts { width: 840px; } }
+.nexts span { display: inline-block; padding: 5px; }
 
 p.form-buttons { text-align: right; margin-bottom: 0; }
