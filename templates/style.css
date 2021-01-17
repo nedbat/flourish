@@ -17,7 +17,7 @@ h1:first-of-type { margin-top: 0; }
 
 #content { grid-area: content; margin: 0 auto; max-width: 1000px; text-align: center; }
 
-.dialog { display: none; position: absolute; top: 8rem; width: 60vw; left: 20vw; border: 1px solid black; background: white; padding: 2em; max-height: 80%; overflow-y: scroll; }
+.dialog { display: none; position: absolute; top: 10vh; width: 60vw; left: 20vw; max-height: 80vh; border: 1px solid black; background: white; padding: 2em; overflow-y: scroll; }
 
 .short_check { margin-left: .5em; margin-right: .5em; }
 

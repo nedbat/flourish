@@ -81,13 +81,13 @@ h1:first-of-type {
 .dialog {
     display: none;
     position: absolute;
-    top: 8rem;
+    top: 10vh;
     width: 60vw;
     left: 20vw;
+    max-height: 80vh;
     border: 1px solid black;
     background: white;
     padding: 2em;
-    max-height: 80%;
     overflow-y: scroll;
 }
 
