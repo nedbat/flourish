@@ -6,3 +6,4 @@ numpy
 Pillow
 pycairo
 python-dotenv
+WTForms

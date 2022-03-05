@@ -18,7 +18,7 @@ from flask import (
 from flask_wtf import FlaskForm
 from PIL import Image, PngImagePlugin
 from wtforms import BooleanField, IntegerField, StringField
-from wtforms.widgets.html5 import NumberInput
+from wtforms.widgets import NumberInput
 from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph
