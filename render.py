@@ -5,6 +5,7 @@ import cairo
 
 class Render:
     extras = []
+    DTS = [(400, .02), (1000, .01), (9999999, .002)]
 
     def __init__(self, linewidth=5, alpha=1, bg=1):
         self.linewidth = linewidth
@@ -24,6 +25,18 @@ class Render:
     def draw(self, surface, size, harm):
         pass
 
+    def dt(self, width):
+        return lookup(width, self.DTS)
+
+def lookup(x, choices):
+    """
+    Find the value in a lookup table where x < v.
+    """
+    for limit, choice in choices:
+        if x < limit:
+            return choice
+
+
 class ElegantLine(Render):
     def __init__(self, gray=0, **kwargs):
         super().__init__(**kwargs)
@@ -32,11 +45,12 @@ class ElegantLine(Render):
     def draw(self, surface, size, harm):
         npend = 3
         width, height = size
+        dt = self.dt(width)
         ctx = self.prep_context(surface, size)
         ctx.set_source_rgba(self.gray, self.gray, self.gray, self.alpha)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
-        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=.01)):
+        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=dt)):
             if i == 0:
                 ctx.move_to(x * maxx, y * maxy)
             else:
@@ -45,6 +59,7 @@ class ElegantLine(Render):
 
 class ColorLine(Render):
     extras = ["j"]
+    DTS = [(400, .04), (1000, .01), (9999999, .002)]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -52,11 +67,12 @@ class ColorLine(Render):
     def draw(self, surface, size, harm):
         npend = 3
         width, height = size
+        dt = self.dt(width)
         ctx = self.prep_context(surface, size)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
         x0 = y0 = None
-        for i, (x, y, h) in enumerate(harm.points(["x", "y", "j"], dt=.01)):
+        for i, (x, y, h) in enumerate(harm.points(["x", "y", "j"], dt=dt)):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(h, .5, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
