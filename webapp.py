@@ -17,19 +17,17 @@ from flask import (
 )
 from flask_wtf import FlaskForm
 from PIL import Image, PngImagePlugin
-from wtforms import BooleanField, IntegerField, StringField
+from wtforms import BooleanField, IntegerField
 from wtforms.widgets import NumberInput
 from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph
-from render import draw_png, draw_svg, ColorLine, ElegantLine
+from render import draw_png, draw_svg
 
 load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
-TheRender = functools.partial(ColorLine, linewidth=10, alpha=.5)
-TheRender = functools.partial(ElegantLine, linewidth=3, alpha=1)
 
 def dict_to_slug(d):
     return "".join(itertools.chain.from_iterable(d.items()))
@@ -68,7 +66,6 @@ class Thumb:
 @dataclass
 class ManySettings:
     npend: int = 3
-    style: str = "foob"
     xy_symmetry: bool = True
     x_symmetry: bool = True
     y_symmetry: bool = True
@@ -82,7 +79,6 @@ class ManySettingsForm(FlaskForm):
         validators=[DataRequired()],
         widget=NumberInput(min=1, max=9),
     )
-    style = StringField("Style")
     xy_symmetry = BooleanField("XY")
     x_symmetry = BooleanField("X")
     y_symmetry = BooleanField("Y")
@@ -127,13 +123,13 @@ def manysettings():
 def one(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    render = TheRender()
-    svg = draw_svg(render, harm=harm, size=(1920//2, 1080//2))
+    #render = TheRender()
+    svg = draw_svg(harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
     for paramdef, thing, extra_name, val in params:
-        if extra_name is not None and extra_name not in render.extras:
+        if extra_name is not None and extra_name not in harm.render.extras:
             continue
         name = thing.name + " " + paramdef.type.name
         adj_thumbs = []
@@ -161,7 +157,7 @@ def png(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
-    png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
+    png_bytes = draw_png(harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
 
 STATE_KEY = "Flourish State"
@@ -171,7 +167,7 @@ def download(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
-    png_bytes = draw_png(TheRender(), harm=harm, size=(sx, sy))
+    png_bytes = draw_png(harm=harm, size=(sx, sy))
     im = Image.open(png_bytes)
     info = PngImagePlugin.PngInfo()
     info.add_text("Software", "https://flourish.nedbat.com")

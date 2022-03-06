@@ -6,6 +6,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from render import ColorLine, ElegantLine
+
 
 class Parameter:
     def __init__(self,
@@ -211,6 +213,14 @@ class TimeSpan(Parameterized):
         adjacent_step=50,
         )
 
+
+STYLES = [
+    ElegantLine(linewidth=3, alpha=1),
+    ColorLine(lightness=0, linewidth=50, alpha=.1),
+    ColorLine(linewidth=10, alpha=.5),
+    ColorLine(linewidth=50, alpha=.1),
+]
+
 @dataclass
 class Harmonograph(Parameterized):
     density: Parameter(
@@ -220,13 +230,21 @@ class Harmonograph(Parameterized):
         places=2,
         adjacent=lambda v: [v*.8*.8, v*.8, v/.8, v/.8/.8],
         )
+    style: Parameter(
+        name="style",
+        key="s",
+        default=0,
+        adjacent=lambda _: list(range(len(STYLES))),
+        )
 
-    def __init__(self, name="", density=1.0):
+    def __init__(self, name="", density=1.0, style=0):
         self.name = name
         self.density = density
+        self.style = style
         self.dimensions = {}
         self.set_time_span(TimeSpan("ts", 900, 200))
         self.extras = set()
+        self.render = STYLES[style]
 
     def add_dimension(self, name, waves, extra=False):
         self.dimensions[name] = waves

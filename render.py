@@ -41,13 +41,16 @@ class ElegantLine(Render):
     def __init__(self, gray=0, **kwargs):
         super().__init__(**kwargs)
         self.gray = gray
+        # Cairo won't alpha a line over itself, so we can't use an alpha value
+        # for this renderer, which draws the whole image as one line.
+        assert self.alpha == 1
 
     def draw(self, surface, size, harm):
         npend = 3
         width, height = size
         dt = self.dt(width)
         ctx = self.prep_context(surface, size)
-        ctx.set_source_rgba(self.gray, self.gray, self.gray, self.alpha)
+        ctx.set_source_rgb(self.gray, self.gray, self.gray)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
         for i, (x, y) in enumerate(harm.points(["x", "y"], dt=dt)):
@@ -61,8 +64,9 @@ class ColorLine(Render):
     extras = ["j"]
     DTS = [(400, .04), (1000, .01), (9999999, .002)]
 
-    def __init__(self, **kwargs):
+    def __init__(self, lightness=.5, **kwargs):
         super().__init__(**kwargs)
+        self.lightness = lightness
 
     def draw(self, surface, size, harm):
         npend = 3
@@ -71,10 +75,9 @@ class ColorLine(Render):
         ctx = self.prep_context(surface, size)
         maxx = width / (npend + 1)
         maxy = height / (npend + 1)
-        x0 = y0 = None
         for i, (x, y, h) in enumerate(harm.points(["x", "y", "j"], dt=dt)):
             if i > 0:
-                r, g, b = colorsys.hls_to_rgb(h, .5, 1)
+                r, g, b = colorsys.hls_to_rgb(h, self.lightness, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
                 ctx.move_to(x0 * maxx, y0 * maxy)
                 ctx.line_to(x * maxx, y * maxy)
@@ -82,16 +85,21 @@ class ColorLine(Render):
             x0, y0 = x, y
 
 
-def draw_svg(render, harm, size):
+def draw_svg(harm, size, render=None):
     width, height = size
+    if render is None:
+        render = harm.render
     svgio = BytesIO()
     with cairo.SVGSurface(svgio, width, height) as surface:
         surface.set_document_unit(cairo.SVGUnit.PX)
         render.draw(surface, size, harm)
     return svgio.getvalue().decode("ascii")
 
-def draw_png(render, harm, size):
+def draw_png(harm, size, render=None):
     width, height = size
+    if render is None:
+        render = harm.render
+    svgio = BytesIO()
     with cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height) as surface:
         render.draw(surface, size, harm)
         pngio = BytesIO()
