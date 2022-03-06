@@ -293,6 +293,7 @@ class Harmonograph(Parameterized):
         harm.add_dimension("x", [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)])
         harm.add_dimension("y", [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)])
         harm.add_dimension("j", [FullWave.from_short_params("j", params)], extra=True)
+        harm.add_dimension("k", [FullWave.from_short_params("k", params)], extra=True)
         harm.set_ramp(Ramp.from_short_params("r", params))
         harm.set_time_span(TimeSpan.from_short_params("ts", params))
         return harm
@@ -313,6 +314,7 @@ class Harmonograph(Parameterized):
         harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd, limit=xlimit) for i in range(npend)])
         harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd, limit=ylimit) for i in range(npend)])
         harm.add_dimension("j", [FullWave.make_random("j", rnd)], extra=True)
+        harm.add_dimension("k", [FullWave.make_random("k", rnd)], extra=True)
         harm.set_ramp(Ramp("r", rampstop))
         return harm
 

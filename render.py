@@ -13,20 +13,24 @@ class Render:
         self.bg = bg
 
     def prep_context(self, surface, size):
-        width, height = size
+        self.surface = surface
+        self.width, self.height = size
         ctx = cairo.Context(surface)
-        ctx.rectangle(0, 0, width, height)
+        ctx.rectangle(0, 0, self.width, self.height)
         ctx.set_source_rgba(self.bg, self.bg, self.bg, 1)
         ctx.fill()
-        ctx.translate(width / 2, height / 2)
-        ctx.set_line_width(width * self.linewidth / 10000)
+        ctx.translate(self.width / 2, self.height / 2)
+        self.set_line_width(ctx, 1)
         return ctx
 
     def draw(self, surface, size, harm):
         pass
 
-    def dt(self, width):
-        return lookup(width, self.DTS)
+    def dt(self):
+        return lookup(self.width, self.DTS)
+
+    def set_line_width(self, ctx, width_tweak):
+        ctx.set_line_width(self.width * self.linewidth * width_tweak / 10000)
 
 def lookup(x, choices):
     """
@@ -47,13 +51,11 @@ class ElegantLine(Render):
 
     def draw(self, surface, size, harm):
         npend = 3
-        width, height = size
-        dt = self.dt(width)
         ctx = self.prep_context(surface, size)
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
-        maxx = width / (npend + 1)
-        maxy = height / (npend + 1)
-        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=dt)):
+        maxx = self.width / (npend + 1)
+        maxy = self.height / (npend + 1)
+        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=self.dt())):
             if i == 0:
                 ctx.move_to(x * maxx, y * maxy)
             else:
@@ -61,7 +63,7 @@ class ElegantLine(Render):
         ctx.stroke()
 
 class ColorLine(Render):
-    extras = ["j"]
+    extras = ["j", "k"]
     DTS = [(400, .04), (1000, .01), (9999999, .002)]
 
     def __init__(self, lightness=.5, **kwargs):
@@ -70,17 +72,16 @@ class ColorLine(Render):
 
     def draw(self, surface, size, harm):
         npend = 3
-        width, height = size
-        dt = self.dt(width)
         ctx = self.prep_context(surface, size)
-        maxx = width / (npend + 1)
-        maxy = height / (npend + 1)
-        for i, (x, y, h) in enumerate(harm.points(["x", "y", "j"], dt=dt)):
+        maxx = self.width / (npend + 1)
+        maxy = self.height / (npend + 1)
+        for i, (x, y, hue, width_tweak) in enumerate(harm.points(["x", "y", "j", "k"], dt=self.dt())):
             if i > 0:
-                r, g, b = colorsys.hls_to_rgb(h, self.lightness, 1)
+                r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
                 ctx.move_to(x0 * maxx, y0 * maxy)
                 ctx.line_to(x * maxx, y * maxy)
+                self.set_line_width(ctx, width_tweak + 1.5)
                 ctx.stroke()
             x0, y0 = x, y
 
