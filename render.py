@@ -64,7 +64,6 @@ class ElegantLine(Render):
 
 class ColorLine(Render):
     extras = ["j", "k"]
-    DTS = [(400, .04), (1000, .01), (9999999, .002)]
 
     def __init__(self, lightness=.5, **kwargs):
         super().__init__(**kwargs)
