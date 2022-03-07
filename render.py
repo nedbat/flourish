@@ -50,7 +50,7 @@ class ElegantLine(Render):
         assert self.alpha == 1
 
     def draw(self, surface, size, harm):
-        npend = 3
+        npend = harm.npend()
         ctx = self.prep_context(surface, size)
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
         maxx = self.width / (npend + 1)
@@ -70,7 +70,7 @@ class ColorLine(Render):
         self.lightness = lightness
 
     def draw(self, surface, size, harm):
-        npend = 3
+        npend = harm.npend()
         ctx = self.prep_context(surface, size)
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)

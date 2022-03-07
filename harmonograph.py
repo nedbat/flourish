@@ -275,6 +275,9 @@ class Harmonograph(Parameterized):
         for pt in zip(*pts):
             yield pt
 
+    def npend(self):
+        return len(self.dimensions["x"])
+
     def param_things(self):
         for dim_name, dim in self.dimensions.items():
             for wave in dim:
