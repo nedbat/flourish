@@ -5,6 +5,7 @@ import json
 import os
 import random
 import re
+import textwrap
 from dataclasses import dataclass
 from io import BytesIO
 
@@ -204,3 +205,10 @@ def one_url(route, harm, **kwargs):
     qargs.update({k:str(v) for k, v in kwargs.items()})
     slug = dict_to_slug(qargs)
     return f"{route}/{slug}"
+
+@app.route("/robots.txt")
+def robots_txt():
+    return textwrap.dedent("""\
+        User-agent: *
+        Disallow: /
+        """)
