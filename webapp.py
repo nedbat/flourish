@@ -178,7 +178,7 @@ def download(slug):
     png_bytes.seek(0)
     hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
     filename = f"flourish_{hash}.png"
-    return send_file(png_bytes, as_attachment=True, attachment_filename=filename, mimetype="image/png")
+    return send_file(png_bytes, as_attachment=True, download_name=filename, mimetype="image/png")
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
