@@ -19,6 +19,7 @@ class Render:
     def prep_context(self, surface, size):
         self.surface = surface
         self.width, self.height = size
+        self.dt = lookup(self.width, self.DTS)
         ctx = cairo.Context(surface)
         ctx.rectangle(0, 0, self.width, self.height)
         ctx.set_source_rgba(self.bg, self.bg, self.bg, 1)
@@ -29,9 +30,6 @@ class Render:
 
     def draw(self, surface, size, harm):
         pass
-
-    def dt(self):
-        return lookup(self.width, self.DTS)
 
     def set_line_width(self, ctx, width_tweak):
         ctx.set_line_width(self.width * self.linewidth * width_tweak / 10000)
@@ -59,7 +57,7 @@ class ElegantLine(Render):
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)
-        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=self.dt())):
+        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=self.dt)):
             if i == 0:
                 ctx.move_to(x * maxx, y * maxy)
             else:
@@ -78,7 +76,7 @@ class ColorLine(Render):
         ctx = self.prep_context(surface, size)
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)
-        for i, (x, y, hue, width_tweak) in enumerate(harm.points(["x", "y", "j", "k"], dt=self.dt())):
+        for i, (x, y, hue, width_tweak) in enumerate(harm.points(["x", "y", "j", "k"], dt=self.dt)):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
