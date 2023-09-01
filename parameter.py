@@ -146,7 +146,7 @@ class Parameterized:
         Return a dict of short parameters for all of the Parameters.
         """
         shorts = {}
-        for thing, extra_name in self.param_things():
+        for thing, _ in self.param_things():
             for field in thing.paramdefs():
                 key = thing.name + field.type.key
                 val = getattr(thing, field.name)
