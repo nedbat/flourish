@@ -20,3 +20,10 @@ def slug_to_dict(s):
     abc123def456x-76y99 becomes {"abc": "123", "def": "456", "x": "-76", "y": "99"}
     """
     return dict(re.findall(r"([a-z]+)(-?\d+)", s))
+
+
+def abc(i):
+    """
+    Get a letter corresponding to a number.
+    """
+    return "abcdefghijklmnopqrstuvwxyz"[i]

@@ -5,6 +5,7 @@ import numpy as np
 
 from render import ColorLine, ElegantLine
 from parameter import GlobalParameter, Parameter, Parameterized, global_value
+from util import abc
 
 
 freq = GlobalParameter("freq")
@@ -213,7 +214,3 @@ class Harmonograph(Parameterized):
         harm.add_dimension("k", [FullWave.make_random("k", rnd)], extra=True)
         harm.set_ramp(Ramp("r", rampstop))
         return harm
-
-
-def abc(i):
-    return "abcdefghijklmnopqrstuvwxyz"[i]
