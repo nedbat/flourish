@@ -23,8 +23,9 @@ from wtforms import BooleanField, IntegerField
 from wtforms.widgets import NumberInput
 from wtforms.validators import DataRequired
 
+from constants import FULLX, FULLY, MANY_SETTINGS_COOKIE, PNG_STATE_KEY, THUMBX, THUMBY
 from harmonograph import Harmonograph
-from render import STATE_KEY, draw_png, draw_svg
+from render import draw_png, draw_svg
 from util import dict_to_slug, slug_to_dict
 
 load_dotenv()
@@ -70,9 +71,6 @@ class ManySettings:
     no_symmetry: bool = True
 
 
-MANY_SETTINGS_COOKIE = "manysettings"
-
-
 class ManySettingsForm(FlaskForm):
     npend = IntegerField(
         "Number of pendulums",
@@ -102,7 +100,7 @@ def many():
     if settings.no_symmetry:
         syms += "N"
 
-    size = (192, 108)
+    size = (THUMBX, THUMBY)
     thumbs = []
     if syms:
         while len(thumbs) < 30:
@@ -126,7 +124,7 @@ def manysettings():
 def one(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    svg = draw_svg(harm=harm, size=(1920 // 2, 1080 // 2))
+    svg = draw_svg(harm=harm, size=(FULLX // 2, FULLY // 2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
@@ -144,16 +142,20 @@ def one(slug):
             adj_harm = Harmonograph.make_from_short_params(adj_params)
             adj_repr = paramdef.type.repr(adj)
             adj_thumbs.append(
-                (adj_repr, dict_to_slug(one_param), Thumb(adj_harm, size=(192, 108)))
+                (
+                    adj_repr,
+                    dict_to_slug(one_param),
+                    Thumb(adj_harm, size=(THUMBX, THUMBY)),
+                )
             )
         param_display.append((name, adj_thumbs))
-    download_url = one_url("/download", harm, sx=1920, sy=1080)
+
     return render_template(
         "one.html",
         svg=svg,
         params=params,
         param_display=param_display,
-        download_url=download_url,
+        download_url=one_url("/download", harm, sx=FULLX, sy=FULLY),
     )
 
 
@@ -161,7 +163,7 @@ def one(slug):
 def png(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
+    sx, sy = int(params.get("sx", FULLX)), int(params.get("sy", FULLY))
     png_bytes = draw_png(harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
 
@@ -170,7 +172,7 @@ def png(slug):
 def download(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
+    sx, sy = int(params.get("sx", FULLX)), int(params.get("sy", FULLY))
     png_bytes = draw_png(harm=harm, size=(sx, sy), with_metadata=True)
     hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
     filename = f"flourish_{hash}.png"
@@ -188,7 +190,7 @@ def upload_file():
             uploaded_file.save(pngio)
             pngio.seek(0)
             im = Image.open(pngio)
-            params = im.info.get(STATE_KEY)
+            params = im.info.get(PNG_STATE_KEY)
             if params:
                 slug = dict_to_slug(json.loads(params))
                 return redirect(f"/one/{slug}")

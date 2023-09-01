@@ -5,7 +5,7 @@ from io import BytesIO
 import cairo
 from PIL import Image, PngImagePlugin
 
-STATE_KEY = "Flourish State"
+from constants import PNG_STATE_KEY
 
 
 class Render:
@@ -118,7 +118,7 @@ def draw_png(harm, size, render=None, with_metadata=False):
         im = Image.open(pngio)
         info = PngImagePlugin.PngInfo()
         info.add_text("Software", "https://flourish.nedbat.com")
-        info.add_text(STATE_KEY, json.dumps(harm.short_parameters()))
+        info.add_text(PNG_STATE_KEY, json.dumps(harm.short_parameters()))
         pngio = BytesIO()
         im.save(pngio, "PNG", pnginfo=info)
         pngio.seek(0)
