@@ -98,8 +98,7 @@ class Parameterized:
         for field in cls.paramdefs():
             key = name + field.type.key
             if key in params:
-                val = params[key]
-                val = (field.type.from_short or int)(val)
+                val = field.type.from_short(params[key])
             else:
                 val = field.type.default
             kwargs[field.name] = val

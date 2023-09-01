@@ -1,10 +1,8 @@
 import functools
 import hashlib
-import itertools
 import json
 import os
 import random
-import re
 import textwrap
 from dataclasses import dataclass
 from io import BytesIO
@@ -24,17 +22,12 @@ from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph
 from render import STATE_KEY, draw_png, draw_svg
+from util import dict_to_slug, slug_to_dict
 
 load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
-
-def dict_to_slug(d):
-    return "".join(itertools.chain.from_iterable(d.items()))
-
-def slug_to_dict(s):
-    return dict(re.findall(r"([a-z]+)(-?\d+)", s))
 
 @dataclass
 class Thumb:
@@ -137,7 +130,7 @@ def one(slug):
             adj_params = dict(shorts)
             adj_key = thing.name + paramdef.type.key
             # Experimenting with slug/delta urls...
-            one_param = {adj_key: str(paramdef.type.to_short(adj))}
+            one_param = {adj_key: paramdef.type.to_short(adj)}
             adj_params.update(one_param)
             adj_harm = Harmonograph.make_from_short_params(adj_params)
             adj_repr = paramdef.type.repr(adj)
@@ -191,9 +184,7 @@ def upload_file():
     return render_template("upload.html", error=error)
 
 def one_url(route, harm, **kwargs):
-    qargs = harm.short_parameters()
-    qargs.update({k:str(v) for k, v in kwargs.items()})
-    slug = dict_to_slug(qargs)
+    slug = dict_to_slug({**harm.short_parameters(), **kwargs})
     return f"{route}/{slug}"
 
 @app.route("/robots.txt")
