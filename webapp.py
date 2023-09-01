@@ -17,13 +17,13 @@ from flask import (
     make_response, redirect, send_file,
 )
 from flask_wtf import FlaskForm
-from PIL import Image, PngImagePlugin
+from PIL import Image
 from wtforms import BooleanField, IntegerField
 from wtforms.widgets import NumberInput
 from wtforms.validators import DataRequired
 
 from harmonograph import Harmonograph
-from render import draw_png, draw_svg
+from render import STATE_KEY, draw_png, draw_svg
 
 load_dotenv()
 app = Flask(__name__)
@@ -160,21 +160,12 @@ def png(slug):
     png_bytes = draw_png(harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
 
-STATE_KEY = "Flourish State"
-
 @app.route("/download/<slug>")
 def download(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
-    png_bytes = draw_png(harm=harm, size=(sx, sy))
-    im = Image.open(png_bytes)
-    info = PngImagePlugin.PngInfo()
-    info.add_text("Software", "https://flourish.nedbat.com")
-    info.add_text(STATE_KEY, json.dumps(params))
-    png_bytes = BytesIO()
-    im.save(png_bytes, "PNG", pnginfo=info)
-    png_bytes.seek(0)
+    png_bytes = draw_png(harm=harm, size=(sx, sy), with_metadata=True)
     hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
     filename = f"flourish_{hash}.png"
     return send_file(png_bytes, as_attachment=True, download_name=filename, mimetype="image/png")

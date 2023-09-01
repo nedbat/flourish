@@ -1,7 +1,11 @@
 import colorsys
+import json
 from io import BytesIO
 
 import cairo
+from PIL import Image, PngImagePlugin
+
+STATE_KEY = "Flourish State"
 
 class Render:
     extras = []
@@ -95,7 +99,7 @@ def draw_svg(harm, size, render=None):
         render.draw(surface, size, harm)
     return svgio.getvalue().decode("ascii")
 
-def draw_png(harm, size, render=None):
+def draw_png(harm, size, render=None, with_metadata=False):
     width, height = size
     if render is None:
         render = harm.render
@@ -105,4 +109,14 @@ def draw_png(harm, size, render=None):
         pngio = BytesIO()
         surface.write_to_png(pngio)
     pngio.seek(0)
+
+    if with_metadata:
+        im = Image.open(pngio)
+        info = PngImagePlugin.PngInfo()
+        info.add_text("Software", "https://flourish.nedbat.com")
+        info.add_text(STATE_KEY, json.dumps(harm.short_parameters()))
+        pngio = BytesIO()
+        im.save(pngio, "PNG", pnginfo=info)
+        pngio.seek(0)
+
     return pngio
