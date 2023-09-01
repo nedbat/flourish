@@ -9,9 +9,13 @@ from io import BytesIO
 from dataclasses_json import dataclass_json
 from dotenv import load_dotenv
 from flask import (
-    Flask, request,
-    render_template, render_template_string,
-    make_response, redirect, send_file,
+    Flask,
+    request,
+    render_template,
+    render_template_string,
+    make_response,
+    redirect,
+    send_file,
 )
 from flask_wtf import FlaskForm
 from PIL import Image
@@ -37,9 +41,9 @@ class Thumb:
         url = one_url("/one", self.harm)
         sx = self.size[0]
         sy = self.size[1]
-        pngurl = one_url("/png", self.harm, sx=sx*2, sy=sy*2)
+        pngurl = one_url("/png", self.harm, sx=sx * 2, sy=sy * 2)
         return render_template_string(
-            '''
+            """
             <span>
                 <a href="{{url}}" {% if title %}title="{{ title }}"{% endif %}>
                     <div class="thumb">
@@ -47,13 +51,14 @@ class Thumb:
                     </div>
                 </a>
             </span>
-            ''',
+            """,
             url=url,
             pngurl=pngurl,
             sx=sx,
             sy=sy,
             title=title,
         )
+
 
 @dataclass_json
 @dataclass
@@ -64,7 +69,9 @@ class ManySettings:
     y_symmetry: bool = True
     no_symmetry: bool = True
 
+
 MANY_SETTINGS_COOKIE = "manysettings"
+
 
 class ManySettingsForm(FlaskForm):
     npend = IntegerField(
@@ -76,6 +83,7 @@ class ManySettingsForm(FlaskForm):
     x_symmetry = BooleanField("X")
     y_symmetry = BooleanField("Y")
     no_symmetry = BooleanField("None")
+
 
 @app.route("/", methods=["GET", "POST"])
 def many():
@@ -103,6 +111,7 @@ def many():
     form = ManySettingsForm(obj=settings)
     return render_template("many.html", thumbs=thumbs, form=form)
 
+
 @app.route("/manysettings", methods=["POST"])
 def manysettings():
     form = ManySettingsForm()
@@ -112,11 +121,12 @@ def manysettings():
     resp.set_cookie(MANY_SETTINGS_COOKIE, settings.to_json())
     return resp
 
+
 @app.route("/one/<path:slug>")
 def one(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    svg = draw_svg(harm=harm, size=(1920//2, 1080//2))
+    svg = draw_svg(harm=harm, size=(1920 // 2, 1080 // 2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
@@ -133,7 +143,9 @@ def one(slug):
             adj_params.update(one_param)
             adj_harm = Harmonograph.make_from_short_params(adj_params)
             adj_repr = paramdef.type.repr(adj)
-            adj_thumbs.append((adj_repr, dict_to_slug(one_param), Thumb(adj_harm, size=(192, 108))))
+            adj_thumbs.append(
+                (adj_repr, dict_to_slug(one_param), Thumb(adj_harm, size=(192, 108)))
+            )
         param_display.append((name, adj_thumbs))
     download_url = one_url("/download", harm, sx=1920, sy=1080)
     return render_template(
@@ -144,6 +156,7 @@ def one(slug):
         download_url=download_url,
     )
 
+
 @app.route("/png/<slug>")
 def png(slug):
     params = slug_to_dict(slug)
@@ -151,6 +164,7 @@ def png(slug):
     sx, sy = int(params.get("sx", 1920)), int(params.get("sy", 1080))
     png_bytes = draw_png(harm=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
+
 
 @app.route("/download/<slug>")
 def download(slug):
@@ -160,7 +174,10 @@ def download(slug):
     png_bytes = draw_png(harm=harm, size=(sx, sy), with_metadata=True)
     hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
     filename = f"flourish_{hash}.png"
-    return send_file(png_bytes, as_attachment=True, download_name=filename, mimetype="image/png")
+    return send_file(
+        png_bytes, as_attachment=True, download_name=filename, mimetype="image/png"
+    )
+
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -182,13 +199,17 @@ def upload_file():
         error = "Only .png files downloaded from Flourish will work"
     return render_template("upload.html", error=error)
 
+
 def one_url(route, harm, **kwargs):
     slug = dict_to_slug({**harm.short_parameters(), **kwargs})
     return f"{route}/{slug}"
 
+
 @app.route("/robots.txt")
 def robots_txt():
-    return textwrap.dedent("""\
+    return textwrap.dedent(
+        """\
         User-agent: *
         Disallow: /
-        """)
+        """
+    )

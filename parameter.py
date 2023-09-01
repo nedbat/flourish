@@ -7,16 +7,26 @@ import contextvars
 import dataclasses
 from dataclasses import dataclass
 
+
 class Parameter:
     """
     A parameter for a curve.
 
     All values must be int or float.
     """
-    def __init__(self,
-        name, key, default,
-        places=1, scale=1.0, adjacent_step=None,
-        adjacent=None, random=None, to_short=None, from_short=None,
+
+    def __init__(
+        self,
+        name,
+        key,
+        default,
+        places=1,
+        scale=1.0,
+        adjacent_step=None,
+        adjacent=None,
+        random=None,
+        to_short=None,
+        from_short=None,
     ):
         self.name = name
         self.key = key
@@ -47,7 +57,7 @@ class Parameter:
         Convert the value to a short representation, which must be a string of an int.
         """
         if isinstance(self.default, float):
-            return str(int(v / self.scale * 10 ** self.places))
+            return str(int(v / self.scale * 10**self.places))
         else:
             return str(v)
 
@@ -56,7 +66,7 @@ class Parameter:
         Convert from a short representation, once produced by `to_short`.
         """
         if isinstance(self.default, float):
-            return float(s) / 10 ** self.places * self.scale
+            return float(s) / 10**self.places * self.scale
         else:
             return int(s)
 
@@ -72,6 +82,7 @@ class Parameterized:
     """
     A parameterized thing (probably a function).
     """
+
     # The name will be used to differentiate between multiple instances used
     # together, like an x wave and a y wave.
     name: str
@@ -159,6 +170,7 @@ class Parameterized:
 ## Pseudo-global parameters, like thread locals.
 
 GlobalParameter = contextvars.ContextVar
+
 
 @contextlib.contextmanager
 def global_value(cvar, val):

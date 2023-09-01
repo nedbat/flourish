@@ -9,6 +9,7 @@ from parameter import GlobalParameter, Parameter, Parameterized, global_value
 
 freq = GlobalParameter("freq")
 
+
 @dataclass
 class FullWave(Parameterized):
     freq: Parameter(
@@ -17,32 +18,32 @@ class FullWave(Parameterized):
         default=2,
         adjacent_step=1,
         random=lambda rnd: rnd.randrange(*freq.get((1, 6, 1))),
-        )
+    )
     amp: Parameter(
         name="amplitude",
         key="a",
-        default=.5,
+        default=0.5,
         places=3,
-        adjacent_step=.2,
+        adjacent_step=0.2,
         random=lambda rnd: rnd.uniform(0.1, 1.0),
-        )
+    )
     tweq: Parameter(
         name="frequency tweak",
         key="t",
         default=0.0,
         places=6,
-        adjacent_step=.0004,
-        random=lambda rnd: rnd.gauss(0, .005),
-        )
+        adjacent_step=0.0004,
+        random=lambda rnd: rnd.gauss(0, 0.005),
+    )
     phase: Parameter(
         name="phase",
         key="p",
         default=0.0,
         places=4,
         scale=2 * math.pi,
-        adjacent_step=.2,
+        adjacent_step=0.2,
         random=lambda rnd: rnd.uniform(0, 2 * math.pi),
-        )
+    )
 
     def __call__(self, t, density=1):
         return self.amp * np.sin((self.freq * density + self.tweq) * t + self.phase)
@@ -65,7 +66,7 @@ class Ramp(Parameterized):
         name="stop",
         key="z",
         default=500,
-        )
+    )
 
     def __call__(self, t):
         return t / self.stop
@@ -78,21 +79,22 @@ class TimeSpan(Parameterized):
         key="c",
         default=900,
         adjacent_step=100,
-        )
+    )
     width: Parameter(
         name="width",
         key="w",
         default=200,
         adjacent_step=50,
-        )
+    )
 
 
 STYLES = [
     ElegantLine(linewidth=3, alpha=1),
-    ColorLine(lightness=0, linewidth=50, alpha=.1),
-    ColorLine(linewidth=10, alpha=.5),
-    ColorLine(linewidth=50, alpha=.1),
+    ColorLine(lightness=0, linewidth=50, alpha=0.1),
+    ColorLine(linewidth=10, alpha=0.5),
+    ColorLine(linewidth=50, alpha=0.1),
 ]
+
 
 @dataclass
 class Harmonograph(Parameterized):
@@ -101,14 +103,14 @@ class Harmonograph(Parameterized):
         key="d",
         default=1.0,
         places=2,
-        adjacent=lambda v: [v*.8*.8, v*.8, v/.8, v/.8/.8],
-        )
+        adjacent=lambda v: [v * 0.8 * 0.8, v * 0.8, v / 0.8, v / 0.8 / 0.8],
+    )
     style: Parameter(
         name="style",
         key="s",
         default=0,
         adjacent=lambda _: list(range(len(STYLES))),
-        )
+    )
 
     def __init__(self, name="", density=1.0, style=0):
         self.name = name
@@ -130,7 +132,7 @@ class Harmonograph(Parameterized):
     def set_time_span(self, timespan):
         self.timespan = timespan
 
-    def points(self, dims, dt=.01):
+    def points(self, dims, dt=0.01):
         ts_half = self.timespan.width // 2
         t = np.arange(
             start=self.timespan.center - ts_half,
@@ -166,8 +168,14 @@ class Harmonograph(Parameterized):
         npend = len(xs)
 
         harm = cls.from_short_params("", params)
-        harm.add_dimension("x", [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)])
-        harm.add_dimension("y", [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)])
+        harm.add_dimension(
+            "x",
+            [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)],
+        )
+        harm.add_dimension(
+            "y",
+            [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)],
+        )
         harm.add_dimension("j", [FullWave.from_short_params("j", params)], extra=True)
         harm.add_dimension("k", [FullWave.from_short_params("k", params)], extra=True)
         harm.set_ramp(Ramp.from_short_params("r", params))
@@ -187,12 +195,25 @@ class Harmonograph(Parameterized):
         elif sym == "R":
             xlimit = ylimit = "odd"
         harm = Harmonograph()
-        harm.add_dimension("x", [FullWave.make_random(f"x{abc(i)}", rnd, limit=xlimit) for i in range(npend)])
-        harm.add_dimension("y", [FullWave.make_random(f"y{abc(i)}", rnd, limit=ylimit) for i in range(npend)])
+        harm.add_dimension(
+            "x",
+            [
+                FullWave.make_random(f"x{abc(i)}", rnd, limit=xlimit)
+                for i in range(npend)
+            ],
+        )
+        harm.add_dimension(
+            "y",
+            [
+                FullWave.make_random(f"y{abc(i)}", rnd, limit=ylimit)
+                for i in range(npend)
+            ],
+        )
         harm.add_dimension("j", [FullWave.make_random("j", rnd)], extra=True)
         harm.add_dimension("k", [FullWave.make_random("k", rnd)], extra=True)
         harm.set_ramp(Ramp("r", rampstop))
         return harm
+
 
 def abc(i):
     return "abcdefghijklmnopqrstuvwxyz"[i]

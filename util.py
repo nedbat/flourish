@@ -12,6 +12,7 @@ def dict_to_slug(d):
     """
     return "".join(itertools.chain.from_iterable((k, str(v)) for k, v in d.items()))
 
+
 def slug_to_dict(s):
     """
     A slug becomes a dict.

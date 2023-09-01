@@ -7,9 +7,10 @@ from PIL import Image, PngImagePlugin
 
 STATE_KEY = "Flourish State"
 
+
 class Render:
     extras = []
-    DTS = [(400, .02), (1000, .01), (9999999, .002)]
+    DTS = [(400, 0.02), (1000, 0.01), (9999999, 0.002)]
 
     def __init__(self, linewidth=5, alpha=1, bg=1):
         self.linewidth = linewidth
@@ -33,6 +34,7 @@ class Render:
 
     def set_line_width(self, ctx, width_tweak):
         ctx.set_line_width(self.width * self.linewidth * width_tweak / 10000)
+
 
 def lookup(x, choices):
     """
@@ -64,10 +66,11 @@ class ElegantLine(Render):
                 ctx.line_to(x * maxx, y * maxy)
         ctx.stroke()
 
+
 class ColorLine(Render):
     extras = ["j", "k"]
 
-    def __init__(self, lightness=.5, **kwargs):
+    def __init__(self, lightness=0.5, **kwargs):
         super().__init__(**kwargs)
         self.lightness = lightness
 
@@ -77,7 +80,9 @@ class ColorLine(Render):
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)
         x0 = y0 = 0
-        for i, (x, y, hue, width_tweak) in enumerate(harm.points(["x", "y", "j", "k"], dt=self.dt)):
+        for i, (x, y, hue, width_tweak) in enumerate(
+            harm.points(["x", "y", "j", "k"], dt=self.dt)
+        ):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
@@ -97,6 +102,7 @@ def draw_svg(harm, size, render=None):
         surface.set_document_unit(cairo.SVGUnit.PX)
         render.draw(surface, size, harm)
     return svgio.getvalue().decode("ascii")
+
 
 def draw_png(harm, size, render=None, with_metadata=False):
     width, height = size
