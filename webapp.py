@@ -124,7 +124,6 @@ def manysettings():
 def one(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    #render = TheRender()
     svg = draw_svg(harm=harm, size=(1920//2, 1080//2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
