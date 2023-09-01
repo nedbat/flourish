@@ -10,6 +10,8 @@ from dataclasses import dataclass
 class Parameter:
     """
     A parameter for a curve.
+
+    All values must be int or float.
     """
     def __init__(self,
         name, key, default,
@@ -41,12 +43,18 @@ class Parameter:
             return [v - 2 * d, v - d, v + d, v + 2 * d]
 
     def to_short(self, v):
+        """
+        Convert the value to a short representation, which must be a string of an int.
+        """
         if isinstance(self.default, float):
             return str(int(v / self.scale * 10 ** self.places))
         else:
             return str(v)
 
     def from_short(self, s):
+        """
+        Convert from a short representation, once produced by `to_short`.
+        """
         if isinstance(self.default, float):
             return float(s) / 10 ** self.places * self.scale
         else:
@@ -61,16 +69,27 @@ class Parameter:
 
 @dataclass
 class Parameterized:
+    """
+    A parameterized thing (probably a function).
+    """
+    # The name will be used to differentiate between multiple instances used
+    # together, like an x wave and a y wave.
     name: str
 
     @classmethod
     def paramdefs(cls):
+        """
+        Get the fields that are Parameters.
+        """
         for field in dataclasses.fields(cls):
             if isinstance(field.type, Parameter):
                 yield field
 
     @classmethod
     def make_random(cls, name, rnd):
+        """
+        Use the Random object `rnd` to make an instance with randomized Parameters.
+        """
         kwargs = {}
         for field in cls.paramdefs():
             if field.type.random:
@@ -82,6 +101,9 @@ class Parameterized:
 
     @classmethod
     def from_params(cls, name, params):
+        """
+        Make an instance using the params dict for Parameter values.
+        """
         kwargs = {}
         for field in cls.paramdefs():
             key = name + field.type.key
@@ -94,6 +116,9 @@ class Parameterized:
 
     @classmethod
     def from_short_params(cls, name, params):
+        """
+        Make an instance using the params dict for Parameter short values.
+        """
         kwargs = {}
         for field in cls.paramdefs():
             key = name + field.type.key
@@ -117,6 +142,9 @@ class Parameterized:
                 yield (field, thing, extra_name, getattr(thing, field.name))
 
     def short_parameters(self):
+        """
+        Return a dict of short parameters for all of the Parameters.
+        """
         shorts = {}
         for thing, extra_name in self.param_things():
             for field in thing.paramdefs():
@@ -126,6 +154,7 @@ class Parameterized:
                     val = field.type.to_short(val)
                 shorts[key] = str(val)
         return shorts
+
 
 ## Pseudo-global parameters, like thread locals.
 
