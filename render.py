@@ -76,6 +76,7 @@ class ColorLine(Render):
         ctx = self.prep_context(surface, size)
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)
+        x0 = y0 = 0
         for i, (x, y, hue, width_tweak) in enumerate(harm.points(["x", "y", "j", "k"], dt=self.dt)):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
@@ -101,7 +102,6 @@ def draw_png(harm, size, render=None, with_metadata=False):
     width, height = size
     if render is None:
         render = harm.render
-    svgio = BytesIO()
     with cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height) as surface:
         render.draw(surface, size, harm)
         pngio = BytesIO()
