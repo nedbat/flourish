@@ -1,4 +1,3 @@
-import contextvars
 import dataclasses
 import math
 from dataclasses import dataclass
@@ -6,11 +5,11 @@ from dataclasses import dataclass
 import numpy as np
 
 from render import ColorLine, ElegantLine
-from parameter import Parameter, Parameterized, ctx
+from parameter import GlobalParameter, Parameter, Parameterized, global_value
 
 
-amp = contextvars.ContextVar("amp")
-freq = contextvars.ContextVar("freq")
+amp = GlobalParameter("amp")
+freq = GlobalParameter("freq")
 
 @dataclass
 class FullWave(Parameterized):
@@ -58,7 +57,7 @@ class FullWave(Parameterized):
         elif limit == "odd":
             freqq = (1, 7, 2)
 
-        with ctx(freq, freqq):
+        with global_value(freq, freqq):
             return super().make_random(name, rnd)
 
 

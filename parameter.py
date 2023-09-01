@@ -1,8 +1,16 @@
+"""
+Parameterized curves
+"""
+
 import contextlib
+import contextvars
 import dataclasses
 from dataclasses import dataclass
 
 class Parameter:
+    """
+    A parameter for a curve.
+    """
     def __init__(self,
         name, key, default,
         places=1, scale=1.0, adjacent_step=None,
@@ -23,6 +31,9 @@ class Parameter:
             self.from_short = from_short
 
     def adjacent(self, v):
+        """
+        Return a list of adjacent values for this parameter.
+        """
         d = self.adjacent_step
         if d is None:
             return []
@@ -55,9 +66,8 @@ class Parameterized:
     @classmethod
     def paramdefs(cls):
         for field in dataclasses.fields(cls):
-            if not isinstance(field.type, Parameter):
-                continue
-            yield field
+            if isinstance(field.type, Parameter):
+                yield field
 
     @classmethod
     def make_random(cls, name, rnd):
@@ -118,12 +128,14 @@ class Parameterized:
                 shorts[key] = str(val)
         return shorts
 
+## Pseudo-global parameters, like thread locals.
+
+GlobalParameter = contextvars.ContextVar
+
 @contextlib.contextmanager
-def ctx(cvar, val):
+def global_value(cvar, val):
     token = cvar.set(val)
     try:
         yield
     finally:
         cvar.reset(token)
-
-
