@@ -8,7 +8,6 @@ from render import ColorLine, ElegantLine
 from parameter import GlobalParameter, Parameter, Parameterized, global_value
 
 
-amp = GlobalParameter("amp")
 freq = GlobalParameter("freq")
 
 @dataclass
@@ -26,7 +25,7 @@ class FullWave(Parameterized):
         default=.5,
         places=3,
         adjacent_step=.2,
-        random=lambda rnd: rnd.uniform(0.1, amp.get(1.0)),
+        random=lambda rnd: rnd.uniform(0.1, 1.0),
         )
     tweq: Parameter(
         name="frequency tweak",
