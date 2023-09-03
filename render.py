@@ -29,7 +29,7 @@ class Render:
         self.set_line_width(ctx, 1)
         return ctx
 
-    def draw(self, surface, size, harm):
+    def draw(self, surface, size, curve):
         pass
 
     def set_line_width(self, ctx, width_tweak):
@@ -53,13 +53,13 @@ class ElegantLine(Render):
         # for this renderer, which draws the whole image as one line.
         assert self.alpha == 1
 
-    def draw(self, surface, size, harm):
-        npend = harm.npend()
+    def draw(self, surface, size, curve):
+        npend = curve.npend()
         ctx = self.prep_context(surface, size)
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)
-        for i, (x, y) in enumerate(harm.points(["x", "y"], dt=self.dt)):
+        for i, (x, y) in enumerate(curve.points(["x", "y"], dt=self.dt)):
             if i == 0:
                 ctx.move_to(x * maxx, y * maxy)
             else:
@@ -74,14 +74,14 @@ class ColorLine(Render):
         super().__init__(**kwargs)
         self.lightness = lightness
 
-    def draw(self, surface, size, harm):
-        npend = harm.npend()
+    def draw(self, surface, size, curve):
+        npend = curve.npend()
         ctx = self.prep_context(surface, size)
         maxx = self.width / (npend + 1)
         maxy = self.height / (npend + 1)
         x0 = y0 = 0
         for i, (x, y, hue, width_tweak) in enumerate(
-            harm.points(["x", "y", "j", "k"], dt=self.dt)
+            curve.points(["x", "y", "j", "k"], dt=self.dt)
         ):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
@@ -93,23 +93,23 @@ class ColorLine(Render):
             x0, y0 = x, y
 
 
-def draw_svg(harm, size, render=None):
+def draw_svg(curve, size, render=None):
     width, height = size
     if render is None:
-        render = harm.render
+        render = curve.render
     svgio = BytesIO()
     with cairo.SVGSurface(svgio, width, height) as surface:
         surface.set_document_unit(cairo.SVGUnit.PX)
-        render.draw(surface, size, harm)
+        render.draw(surface, size, curve)
     return svgio.getvalue().decode("ascii")
 
 
-def draw_png(harm, size, render=None, with_metadata=False):
+def draw_png(curve, size, render=None, with_metadata=False):
     width, height = size
     if render is None:
-        render = harm.render
+        render = curve.render
     with cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height) as surface:
-        render.draw(surface, size, harm)
+        render.draw(surface, size, curve)
         pngio = BytesIO()
         surface.write_to_png(pngio)
     pngio.seek(0)
@@ -118,7 +118,7 @@ def draw_png(harm, size, render=None, with_metadata=False):
         im = Image.open(pngio)
         info = PngImagePlugin.PngInfo()
         info.add_text("Software", "https://flourish.nedbat.com")
-        info.add_text(PNG_STATE_KEY, json.dumps(harm.short_parameters()))
+        info.add_text(PNG_STATE_KEY, json.dumps(curve.short_parameters()))
         pngio = BytesIO()
         im.save(pngio, "PNG", pnginfo=info)
         pngio.seek(0)

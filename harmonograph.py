@@ -195,7 +195,7 @@ class Harmonograph(Parameterized):
             ylimit = "odd"
         elif sym == "R":
             xlimit = ylimit = "odd"
-        harm = Harmonograph()
+        harm = cls()
         harm.add_dimension(
             "x",
             [

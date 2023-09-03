@@ -124,7 +124,7 @@ def manysettings():
 def one(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
-    svg = draw_svg(harm=harm, size=(FULLX // 2, FULLY // 2))
+    svg = draw_svg(curve=harm, size=(FULLX // 2, FULLY // 2))
     params = list(harm.parameters())
     shorts = harm.short_parameters()
     param_display = []
@@ -164,7 +164,7 @@ def png(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", FULLX)), int(params.get("sy", FULLY))
-    png_bytes = draw_png(harm=harm, size=(sx, sy))
+    png_bytes = draw_png(curve=harm, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
 
 
@@ -173,7 +173,7 @@ def download(slug):
     params = slug_to_dict(slug)
     harm = Harmonograph.make_from_short_params(params)
     sx, sy = int(params.get("sx", FULLX)), int(params.get("sy", FULLY))
-    png_bytes = draw_png(harm=harm, size=(sx, sy), with_metadata=True)
+    png_bytes = draw_png(curve=harm, size=(sx, sy), with_metadata=True)
     hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
     filename = f"flourish_{hash}.png"
     return send_file(
