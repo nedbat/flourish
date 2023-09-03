@@ -140,6 +140,7 @@ class Harmonograph(Parameterized):
             stop=self.timespan.center + ts_half,
             step=dt / self.density,
         )
+        scale = len(self.dimensions["x"]) + 1
         pts = []
         for dim_name in dims:
             waves = self.dimensions[dim_name]
@@ -147,12 +148,10 @@ class Harmonograph(Parameterized):
             for wave in waves:
                 val += wave(t, self.density)
             val *= self.ramp(t)
+            val /= scale
             pts.append(val)
         for pt in zip(*pts):
             yield pt
-
-    def npend(self):
-        return len(self.dimensions["x"])
 
     def param_things(self):
         for dim_name, dim in self.dimensions.items():
