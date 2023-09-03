@@ -142,9 +142,9 @@ class Harmonograph(Parameterized):
         )
         pts = []
         for dim_name in dims:
-            dim = self.dimensions[dim_name]
+            waves = self.dimensions[dim_name]
             val = 0.0
-            for wave in dim:
+            for wave in waves:
                 val += wave(t, self.density)
             val *= self.ramp(t)
             pts.append(val)
