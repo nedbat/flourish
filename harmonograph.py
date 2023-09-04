@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from curve import Curve
 from render import ColorLine, ElegantLine
 from parameter import GlobalParameter, Parameter, Parameterized, global_value
 from util import abc
@@ -98,7 +99,7 @@ STYLES = [
 
 
 @dataclass
-class Harmonograph(Parameterized):
+class Harmonograph(Curve):
     density: Parameter(
         name="density",
         key="d",

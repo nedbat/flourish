@@ -17,7 +17,7 @@ class Render:
         self.alpha = alpha
         self.bg = bg
 
-    def prep_context(self, surface, size):
+    def draw(self, surface, size, curve):
         self.surface = surface
         self.width, self.height = size
         self.dt = lookup(self.width, self.DTS)
@@ -27,10 +27,9 @@ class Render:
         ctx.fill()
         ctx.translate(self.width / 2, self.height / 2)
         self.set_line_width(ctx, 1)
-        return ctx
 
-    def draw(self, surface, size, curve):
-        pass
+        self.draw_curve(ctx, size, curve)
+        curve.draw_more(ctx)
 
     def set_line_width(self, ctx, width_tweak):
         ctx.set_line_width(self.width * self.linewidth * width_tweak / 10000)
@@ -53,10 +52,10 @@ class ElegantLine(Render):
         # for this renderer, which draws the whole image as one line.
         assert self.alpha == 1
 
-    def draw(self, surface, size, curve):
-        ctx = self.prep_context(surface, size)
+    def draw_curve(self, ctx, size, curve):
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
         maxsize = min(self.width, self.height)
+        print(f"{maxsize = }")
         for i, (x, y) in enumerate(curve.points(["x", "y"], dt=self.dt)):
             if i == 0:
                 ctx.move_to(x * maxsize, y * maxsize)
@@ -72,8 +71,7 @@ class ColorLine(Render):
         super().__init__(**kwargs)
         self.lightness = lightness
 
-    def draw(self, surface, size, curve):
-        ctx = self.prep_context(surface, size)
+    def draw_curve(self, ctx, size, curve):
         maxsize = min(self.width, self.height)
         x0 = y0 = 0
         for i, (x, y, hue, width_tweak) in enumerate(
