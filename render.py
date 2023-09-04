@@ -56,11 +56,12 @@ class ElegantLine(Render):
     def draw(self, surface, size, curve):
         ctx = self.prep_context(surface, size)
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
+        maxsize = min(self.width, self.height)
         for i, (x, y) in enumerate(curve.points(["x", "y"], dt=self.dt)):
             if i == 0:
-                ctx.move_to(x * self.width, y * self.height)
+                ctx.move_to(x * maxsize, y * maxsize)
             else:
-                ctx.line_to(x * self.width, y * self.height)
+                ctx.line_to(x * maxsize, y * maxsize)
         ctx.stroke()
 
 
@@ -73,6 +74,7 @@ class ColorLine(Render):
 
     def draw(self, surface, size, curve):
         ctx = self.prep_context(surface, size)
+        maxsize = min(self.width, self.height)
         x0 = y0 = 0
         for i, (x, y, hue, width_tweak) in enumerate(
             curve.points(["x", "y", "j", "k"], dt=self.dt)
@@ -80,8 +82,8 @@ class ColorLine(Render):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
-                ctx.move_to(x0 * self.width, y0 * self.height)
-                ctx.line_to(x * self.width, y * self.height)
+                ctx.move_to(x0 * maxsize, y0 * maxsize)
+                ctx.line_to(x * maxsize, y * maxsize)
                 self.set_line_width(ctx, width_tweak + 1.5)
                 ctx.stroke()
             x0, y0 = x, y
