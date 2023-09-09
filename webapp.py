@@ -101,11 +101,16 @@ def many():
         syms += "N"
 
     size = (THUMBX, THUMBY)
-    thumbs = []
     if syms:
-        while len(thumbs) < 30:
-            harm = Harmonograph.make_random(random, npend=settings.npend, syms=syms)
-            thumbs.append(Thumb(harm, size=size))
+        thumbs = [
+            Thumb(
+                Harmonograph.make_random(random, npend=settings.npend, syms=syms),
+                size=size,
+            )
+            for _ in range(30)
+        ]
+    else:
+        thumbs = []
     form = ManySettingsForm(obj=settings)
     return render_template("many.html", thumbs=thumbs, form=form)
 
