@@ -54,8 +54,9 @@ class Spirograph(Curve):
     @classmethod
     def make_one(cls):
         curve = cls()
-        curve.main_circle(0.4)
-        curve.add_gear(gearr=0.18, penr=0.10, inside=True)
+        curve.main_circle(0.3)
+        curve.add_gear(gearr=0.06, penr=0.15, inside=True)
+        curve.add_gear(gearr=0.0005, penr=0.05, inside=False)
         return curve
 
     def main_circle(self, radius):
@@ -84,6 +85,7 @@ class Spirograph(Curve):
         yield from zip(x, y)
 
     def draw_more(self, ctx):
+        return
         ctx.set_source_rgba(1, 0, 0, .8)
         ctx.set_line_width(1)
         ctx.arc(0, 0, self.main_radius * 1080, 0, 2*math.pi)

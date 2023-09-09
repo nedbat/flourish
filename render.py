@@ -10,7 +10,7 @@ from constants import PNG_STATE_KEY
 
 class Render:
     extras = []
-    DTS = [(400, 0.02), (1000, 0.01), (9999999, 0.002)]
+    DTS = [(400, 0.02), (1000, 0.01), (9999999, 0.001)]
 
     def __init__(self, linewidth=5, alpha=1, bg=1):
         self.linewidth = linewidth
