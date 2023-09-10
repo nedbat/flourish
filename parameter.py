@@ -111,21 +111,6 @@ class Parameterized:
         return cls(name=name, **kwargs)
 
     @classmethod
-    def from_params(cls, name, params):
-        """
-        Make an instance using the params dict for Parameter values.
-        """
-        kwargs = {}
-        for field in cls.paramdefs():
-            key = name + field.type.key
-            if key in params:
-                val = params[key]
-            else:
-                val = field.type.default
-            kwargs[field.name] = val
-        return cls(name=name, **kwargs)
-
-    @classmethod
     def from_short_params(cls, name, params):
         """
         Make an instance using the params dict for Parameter short values.
