@@ -12,7 +12,7 @@ livesass: ## For live-editing the CSS
 	sass --watch $(SASSARGS)
 
 run:	## Run locally
-	SECRET_KEY=5f352 WERKZEUG_DEBUG_PIN=off FLASK_APP=webapp FLASK_ENV=development flask run --port 6123
+	SECRET_KEY=5f352 WERKZEUG_DEBUG_PIN=off FLASK_APP=webapp FLASK_ENV=development flask run --debug --port 6123
 
 dbuild:	## Build the docker image
 	docker build -t nedbat/flourish:latest .

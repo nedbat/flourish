@@ -111,7 +111,7 @@ class Parameterized:
         return cls(name=name, **kwargs)
 
     @classmethod
-    def from_short_params(cls, name, params):
+    def from_params(cls, params, name=""):
         """
         Make an instance using the params dict for Parameter short values.
         """
@@ -122,8 +122,11 @@ class Parameterized:
                 val = field.type.from_short(params[key])
             else:
                 val = field.type.default
-            kwargs[field.name] = val
-        return cls(name=name, **kwargs)
+            if field.name != "algorithm":  # TODO: do this the right way!!!
+                kwargs[field.name] = val
+        if name:
+            kwargs["name"] = name
+        return cls(**kwargs)
 
     def param_things(self):
         """

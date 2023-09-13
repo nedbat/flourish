@@ -2,7 +2,9 @@
 
 {% block actions %}
     <a href="/" title="Reload">{% include "icon_refresh.svg" %}</a>
+    {% if form %}
     <a href="#" onClick="showSettings()" title="Settings">{% include "icon_settings.svg" %}</a>
+    {% endif %}
     <a href="#" onClick="showUpload()" title="Upload">{% include "icon_upload.svg" %}</a>
     <a href="#" onClick="showAbout()" title="What is this?">{% include "icon_info.svg" %}</a>
 {% endblock %}
@@ -16,6 +18,7 @@
 {% endblock %}
 
 {% block settings %}
+    {% if form %}
     <h1>Settings</h1>
 
     <form name="many_settings" method="POST" action="/manysettings" onsubmit="return validateManySettings()">
@@ -29,4 +32,5 @@
         </p>
         <p class="form-buttons"><input type="submit" value="Go"></p>
     </form>
+    {% endif %}
 {% endblock %}

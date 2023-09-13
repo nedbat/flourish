@@ -24,8 +24,10 @@ from wtforms.widgets import NumberInput
 from wtforms.validators import DataRequired
 
 from constants import FULLX, FULLY, MANY_SETTINGS_COOKIE, PNG_STATE_KEY, THUMBX, THUMBY
+from curve import Curve
 from harmonograph import Harmonograph
 from render import draw_png, draw_svg
+from spirograph import Spirograph
 from util import dict_to_slug, slug_to_dict
 
 load_dotenv()
@@ -35,14 +37,14 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 @dataclass
 class Thumb:
-    harm: Harmonograph
+    curve: Curve
     size: object
 
     def as_html(self, title=None):
-        url = one_url("/one", self.harm)
+        url = one_url("/one", self.curve)
         sx = self.size[0]
         sy = self.size[1]
-        pngurl = one_url("/png", self.harm, sx=sx * 2, sy=sy * 2)
+        pngurl = one_url("/png", self.curve, sx=sx * 2, sy=sy * 2)
         return render_template_string(
             """
             <span>
@@ -115,6 +117,13 @@ def many():
     return render_template("many.html", thumbs=thumbs, form=form)
 
 
+@app.route("/spiro", methods=["GET", "POST"])
+def spirographs():
+    size = (THUMBX, THUMBY)
+    thumbs = [Thumb(Spirograph.make_one(), size=size) for _ in range(30)]
+    return render_template("many.html", thumbs=thumbs)
+
+
 @app.route("/manysettings", methods=["POST"])
 def manysettings():
     form = ManySettingsForm()
@@ -128,13 +137,13 @@ def manysettings():
 @app.route("/one/<path:slug>")
 def one(slug):
     params = slug_to_dict(slug)
-    harm = Harmonograph.make_from_short_params(params)
-    svg = draw_svg(curve=harm, size=(FULLX // 2, FULLY // 2))
-    params = list(harm.parameters())
-    shorts = harm.short_parameters()
+    curve = Curve.any_from_params(params)
+    svg = draw_svg(curve=curve, size=(FULLX // 2, FULLY // 2))
+    params = list(curve.parameters())
+    shorts = curve.short_parameters()
     param_display = []
     for paramdef, thing, extra_name, val in params:
-        if extra_name is not None and extra_name not in harm.render.extras:
+        if extra_name is not None and extra_name not in curve.render.extras:
             continue
         name = thing.name + " " + paramdef.type.name
         adj_thumbs = []
@@ -144,13 +153,13 @@ def one(slug):
             # Experimenting with slug/delta urls...
             one_param = {adj_key: paramdef.type.to_short(adj)}
             adj_params.update(one_param)
-            adj_harm = Harmonograph.make_from_short_params(adj_params)
+            adj_curve = Curve.any_from_params(adj_params)
             adj_repr = paramdef.type.repr(adj)
             adj_thumbs.append(
                 (
                     adj_repr,
                     dict_to_slug(one_param),
-                    Thumb(adj_harm, size=(THUMBX, THUMBY)),
+                    Thumb(adj_curve, size=(THUMBX, THUMBY)),
                 )
             )
         param_display.append((name, adj_thumbs))
@@ -160,25 +169,25 @@ def one(slug):
         svg=svg,
         params=params,
         param_display=param_display,
-        download_url=one_url("/download", harm, sx=FULLX, sy=FULLY),
+        download_url=one_url("/download", curve, sx=FULLX, sy=FULLY),
     )
 
 
 @app.route("/png/<slug>")
 def png(slug):
     params = slug_to_dict(slug)
-    harm = Harmonograph.make_from_short_params(params)
+    curve = Curve.any_from_params(params)
     sx, sy = int(params.get("sx", FULLX)), int(params.get("sy", FULLY))
-    png_bytes = draw_png(curve=harm, size=(sx, sy))
+    png_bytes = draw_png(curve=curve, size=(sx, sy))
     return send_file(png_bytes, mimetype="image/png")
 
 
 @app.route("/download/<slug>")
 def download(slug):
     params = slug_to_dict(slug)
-    harm = Harmonograph.make_from_short_params(params)
+    curve = Curve.any_from_params(params)
     sx, sy = int(params.get("sx", FULLX)), int(params.get("sy", FULLY))
-    png_bytes = draw_png(curve=harm, size=(sx, sy), with_metadata=True)
+    png_bytes = draw_png(curve=curve, size=(sx, sy), with_metadata=True)
     hash = hashlib.md5(slug.encode("ascii")).hexdigest()[:10]
     filename = f"flourish_{hash}.png"
     return send_file(
@@ -207,8 +216,8 @@ def upload_file():
     return render_template("upload.html", error=error)
 
 
-def one_url(route, harm, **kwargs):
-    slug = dict_to_slug({**harm.short_parameters(), **kwargs})
+def one_url(route, curve, **kwargs):
+    slug = dict_to_slug({**curve.short_parameters(), **kwargs})
     return f"{route}/{slug}"
 
 

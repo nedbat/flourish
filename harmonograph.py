@@ -100,6 +100,8 @@ STYLES = [
 
 @dataclass
 class Harmonograph(Curve):
+    ALGORITHM = 1
+
     density: Parameter(
         name="density",
         key="d",
@@ -114,8 +116,8 @@ class Harmonograph(Curve):
         adjacent=lambda _: list(range(len(STYLES))),
     )
 
-    def __init__(self, name="", density=1.0, style=0):
-        self.name = name
+    def __init__(self, density=1.0, style=0):
+        super().__init__()
         self.density = density
         self.style = style
         self.dimensions = {}
@@ -163,24 +165,26 @@ class Harmonograph(Curve):
         yield self.ramp, None
 
     @classmethod
-    def make_from_short_params(cls, params):
+    def from_params(cls, params, name=""):
+        assert name == ""
+
         # Deduce the number of pendulums from the parameters
         xs = set(k[1] for k in params if k.startswith("x"))
         npend = len(xs)
 
-        harm = cls.from_short_params("", params)
+        harm = super().from_params(params)
         harm.add_dimension(
             "x",
-            [FullWave.from_short_params(f"x{abc(i)}", params) for i in range(npend)],
+            [FullWave.from_params(params, f"x{abc(i)}") for i in range(npend)],
         )
         harm.add_dimension(
             "y",
-            [FullWave.from_short_params(f"y{abc(i)}", params) for i in range(npend)],
+            [FullWave.from_params(params, f"y{abc(i)}") for i in range(npend)],
         )
-        harm.add_dimension("j", [FullWave.from_short_params("j", params)], extra=True)
-        harm.add_dimension("k", [FullWave.from_short_params("k", params)], extra=True)
-        harm.set_ramp(Ramp.from_short_params("r", params))
-        harm.set_time_span(TimeSpan.from_short_params("ts", params))
+        harm.add_dimension("j", [FullWave.from_params(params, "j")], extra=True)
+        harm.add_dimension("k", [FullWave.from_params(params, "k")], extra=True)
+        harm.set_ramp(Ramp.from_params(params, "r"))
+        harm.set_time_span(TimeSpan.from_params(params, "ts"))
         return harm
 
     @classmethod

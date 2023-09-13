@@ -54,7 +54,7 @@ class ElegantLine(Render):
 
     def draw_curve(self, ctx, size, curve):
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
-        maxsize = min(self.width, self.height)
+        maxsize = min(self.width, self.height) / 2
         for i, (x, y) in enumerate(curve.points(["x", "y"], dt=self.dt)):
             if i == 0:
                 ctx.move_to(x * maxsize, y * maxsize)
