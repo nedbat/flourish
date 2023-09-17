@@ -52,7 +52,7 @@ class Spirograph(Curve):
         key="p",
         default=0.0,
         places=2,
-        adjacent_step=0.1,
+        adjacent_step=.5,
     )
 
     def __init__(self, outer_teeth=144, pen_extra=0.0):
@@ -79,8 +79,10 @@ class Spirograph(Curve):
     @classmethod
     def make_random(cls, rnd):
         curve = cls()
-        curve.circles.append(Circle.make_random("ca", rnd))
-        curve.circles.append(Circle.make_random("cb", rnd))
+        curve.outer_teeth = 144
+        curve.gears.append(Gear(name="ga", teeth=rnd.randint(10,40), inside=rnd.choice([0,1])))
+        curve.gears.append(Gear(name="gb", teeth=rnd.randint(5,10), inside=rnd.choice([0,1])))
+        curve.pen_extra = rnd.random() * 3
         return curve
 
     @classmethod
@@ -114,7 +116,7 @@ class Spirograph(Curve):
         return circles
 
     def points(self, dims, dt=0.01):
-        t = np.arange(start=0, stop=100, step=dt)
+        t = np.arange(start=0, stop=1200, step=dt)
         x = y = 0
         scale = 0
         for circle in self.make_circles():

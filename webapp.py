@@ -120,7 +120,7 @@ def many():
 @app.route("/spiro", methods=["GET", "POST"])
 def spirographs():
     size = (THUMBX, THUMBY)
-    thumbs = [Thumb(Spirograph.make_one(), size=size) for _ in range(30)]
+    thumbs = [Thumb(Spirograph.make_random(random), size=size) for _ in range(30)]
     return render_template("many.html", thumbs=thumbs)
 
 
