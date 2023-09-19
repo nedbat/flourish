@@ -82,7 +82,7 @@ class Spirograph(Curve):
         curve.outer_teeth = 144
         curve.gears.append(Gear(name="ga", teeth=rnd.randint(10,40), inside=rnd.choice([0,1])))
         curve.gears.append(Gear(name="gb", teeth=rnd.randint(5,10), inside=rnd.choice([0,1])))
-        curve.pen_extra = rnd.random() * 3
+        curve.pen_extra = rnd.randint(0, 5) * .5
         return curve
 
     @classmethod
@@ -94,13 +94,14 @@ class Spirograph(Curve):
         curve.pen_extra = 10.25
         return curve
 
-    def make_circles(self):
-        circles = []
-        circles.append(Circle(r=1.0, speed=1))
+    def _make_circles(self):
+        circles = [Circle(r=1.0, speed=1)]
         last_teeth = self.outer_teeth
         last_radius = 1.0
+        cycles = 1
         for gear in self.gears:
             this_fraction = gear.teeth / last_teeth
+            cycles *= gear.teeth // math.gcd(last_teeth, gear.teeth)
             this_radius = last_radius * this_fraction
             if gear.inside:
                 speed = -(1 / this_fraction - 1)
@@ -113,13 +114,15 @@ class Spirograph(Curve):
             last_teeth = gear.teeth
             last_radius = this_radius
         circles[-1].r *= 1 + self.pen_extra
-        return circles
+        return circles, cycles
 
     def points(self, dims, dt=0.01):
-        t = np.arange(start=0, stop=1200, step=dt)
+        circles, cycles = self._make_circles()
+        stop = math.pi * 2 * cycles
+        t = np.arange(start=0, stop=stop + dt/2, step=dt)
         x = y = 0
         scale = 0
-        for circle in self.make_circles():
+        for circle in circles:
             cx, cy = circle(t)
             x += cx
             y += cy
