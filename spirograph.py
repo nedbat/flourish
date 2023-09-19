@@ -19,13 +19,24 @@ class Circle:
         return (self.r * np.sin(tt), self.r * np.cos(tt))
 
 
+def adjacent_teeth(t):
+    """Calculate adjacent teeth values.
+
+    Four values, not less than 1, not including the current value.
+    """
+    low = max(t - 2, 1)
+    high = t + 2
+    l = list(range(low, high + 1))
+    l.remove(t)
+    return l
+
 @dataclass
 class Gear(Parameterized):
     teeth: Parameter(
         name="teeth",
         key="t",
         default=12,
-        adjacent_step=1,
+        adjacent=adjacent_teeth,
     )
     inside: Parameter(
         name="inside",
