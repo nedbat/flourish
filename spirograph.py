@@ -26,9 +26,10 @@ def adjacent_teeth(t):
     """
     low = max(t - 2, 1)
     high = t + 2
-    l = list(range(low, high + 1))
-    l.remove(t)
-    return l
+    teeth = list(range(low, high + 1))
+    teeth.remove(t)
+    return teeth
+
 
 @dataclass
 class Gear(Parameterized):
@@ -63,7 +64,7 @@ class Spirograph(Curve):
         key="p",
         default=0.0,
         places=2,
-        adjacent_step=.5,
+        adjacent_step=0.5,
     )
 
     def __init__(self, outer_teeth=144, pen_extra=0.0):
@@ -91,9 +92,13 @@ class Spirograph(Curve):
     def make_random(cls, rnd):
         curve = cls()
         curve.outer_teeth = 144
-        curve.gears.append(Gear(name="ga", teeth=rnd.randint(10,40), inside=rnd.choice([0,1])))
-        curve.gears.append(Gear(name="gb", teeth=rnd.randint(5,10), inside=rnd.choice([0,1])))
-        curve.pen_extra = rnd.randint(0, 5) * .5
+        curve.gears.append(
+            Gear(name="ga", teeth=rnd.randint(10, 40), inside=rnd.choice([0, 1]))
+        )
+        curve.gears.append(
+            Gear(name="gb", teeth=rnd.randint(5, 10), inside=rnd.choice([0, 1]))
+        )
+        curve.pen_extra = rnd.randint(0, 5) * 0.5
         return curve
 
     @classmethod
@@ -120,7 +125,6 @@ class Spirograph(Curve):
             else:
                 speed = 1 / this_fraction + 1
                 circles[-1].r += this_radius
-            ncircles = len(circles)
             circles.append(Circle(r=this_radius, speed=speed))
             last_teeth = gear.teeth
             last_radius = this_radius
@@ -130,7 +134,7 @@ class Spirograph(Curve):
     def points(self, dims, dt=0.01):
         circles, cycles = self._make_circles()
         stop = math.pi * 2 * cycles
-        t = np.arange(start=0, stop=stop + dt/2, step=dt)
+        t = np.arange(start=0, stop=stop + dt / 2, step=dt)
         x = y = 0
         scale = 0
         for circle in circles:
