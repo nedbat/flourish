@@ -1,3 +1,4 @@
+click
 dataclasses-json
 Flask
 Flask-WTF

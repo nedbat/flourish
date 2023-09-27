@@ -136,14 +136,14 @@ class Harmonograph(Curve):
     def set_time_span(self, timespan):
         self.timespan = timespan
 
-    def points(self, dims, dt=0.01):
+    def points(self, dims, scale, dt=0.01):
         ts_half = self.timespan.width // 2
         t = np.arange(
             start=self.timespan.center - ts_half,
             stop=self.timespan.center + ts_half,
             step=dt / self.density,
         )
-        scale = len(self.dimensions["x"]) + 1
+        scale /= len(self.dimensions["x"]) + 1
         pts = []
         for dim_name in dims:
             waves = self.dimensions[dim_name]
@@ -151,7 +151,7 @@ class Harmonograph(Curve):
             for wave in waves:
                 val += wave(t, self.density)
             val *= self.ramp(t)
-            val /= scale
+            val *= scale
             pts.append(val)
         for pt in zip(*pts):
             yield pt

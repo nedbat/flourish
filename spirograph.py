@@ -66,12 +66,14 @@ class Spirograph(Curve):
         places=2,
         adjacent_step=0.5,
     )
+    max_cycles = None
 
     def __init__(self, outer_teeth=144, pen_extra=0.0):
         super().__init__()
         self.outer_teeth = outer_teeth
         self.pen_extra = pen_extra
         self.gears = []
+        self.circles = None
 
     def param_things(self):
         yield self, None
@@ -101,55 +103,99 @@ class Spirograph(Curve):
         curve.pen_extra = rnd.randint(0, 5) * 0.5
         return curve
 
-    @classmethod
-    def make_one(cls):
-        curve = cls()
-        curve.outer_teeth = 144
-        curve.gears.append(Gear(name="ga", teeth=42, inside=1))
-        curve.gears.append(Gear(name="gb", teeth=6, inside=0))
-        curve.pen_extra = 10.25
-        return curve
-
     def _make_circles(self):
-        circles = [Circle(r=1.0, speed=1)]
+        if self.circles is not None:
+            return self.circles
+        self.circles = [Circle(r=1.0, speed=1)]
         last_teeth = self.outer_teeth
         last_radius = 1.0
-        cycles = 1
         for gear in self.gears:
             this_fraction = gear.teeth / last_teeth
-            cycles *= gear.teeth // math.gcd(last_teeth, gear.teeth)
             this_radius = last_radius * this_fraction
             if gear.inside:
                 speed = -(1 / this_fraction - 1)
-                circles[-1].r -= this_radius
+                self.circles[-1].r -= this_radius
             else:
                 speed = 1 / this_fraction + 1
-                circles[-1].r += this_radius
-            circles.append(Circle(r=this_radius, speed=speed))
+                self.circles[-1].r += this_radius
+            self.circles.append(Circle(r=this_radius, speed=speed))
             last_teeth = gear.teeth
             last_radius = this_radius
-        circles[-1].r *= 1 + self.pen_extra
-        return circles, cycles
+        self.circles[-1].r *= 1 + self.pen_extra
+        return self.circles
 
-    def points(self, dims, dt=0.01):
-        circles, cycles = self._make_circles()
+    def _cycles(self):
+        last_teeth = self.outer_teeth
+        cycles = 1
+        for gear in self.gears:
+            cycles *= gear.teeth // math.gcd(last_teeth, gear.teeth)
+            last_teeth = gear.teeth
+        return cycles
+
+    def _scale(self):
+        scale = 0
+        for circle in self._make_circles():
+            scale += circle.r
+        scale *= 1.05
+        return scale
+
+    def points(self, dims, scale, dt=0.01):
+        circles = self._make_circles()
+        cycles = self.max_cycles or self._cycles()
         stop = math.pi * 2 * cycles
         t = np.arange(start=0, stop=stop + dt / 2, step=dt)
         x = y = 0
-        scale = 0
         for circle in circles:
             cx, cy = circle(t)
             x += cx
             y += cy
-            scale += circle.r
-        scale *= 1.05
-        x /= scale
-        y /= scale
+        scale /= self._scale()
+        x *= scale
+        y *= scale
         yield from zip(x, y)
 
-    def draw_more(self, ctx):
-        return
-        ctx.set_source_rgba(1, 0, 0, 0.8)
+    def draw_more(self, ctx, scale, param):
+        scale /= self._scale()
+        finalt = math.pi * 2 * (self.max_cycles or 0)
+
+        ctx.set_source_rgba(1, 0, 0, param)
         ctx.set_line_width(1)
-        ctx.arc(0, 0, 1.0 * 1080, 0, 2 * math.pi)
+        x, y = 0, 0
+        last_teeth = self.outer_teeth
+        last_radius = 1.0
+        draw_gear(ctx, scale, x, y, last_radius, self.outer_teeth, 0)
+        circle_dx_dy = [circle(finalt) for circle in self.circles]
+
+        for igear, gear in enumerate(self.gears):
+            dx, dy = circle_dx_dy[igear]
+            x += dx * scale
+            y += dy * scale
+            this_fraction = gear.teeth / last_teeth
+            this_radius = last_radius * this_fraction
+            last_teeth = gear.teeth
+            last_radius = this_radius
+            draw_gear(ctx, scale, x, y, last_radius, gear.teeth, math.atan2(*circle_dx_dy[igear+1]))
+        ctx.move_to(x, y)
+        dx, dy = self.circles[-1](finalt)
+        x += dx * scale
+        y += dy * scale
+        ctx.line_to(x, y)
+        ctx.stroke()
+        ctx.arc(x, y, .02 * scale, 0, 2 * math.pi)
+        ctx.fill()
+
+
+def draw_gear(ctx, scale, cx, cy, radius, nteeth, dθ):
+    radius *= scale
+    ctx.arc(cx, cy, radius, 0, 2 * math.pi)
+    ctx.stroke()
+    for itooth in range(nteeth):
+        tooth_in = tooth_out = .01 * scale
+        if itooth == 0:
+            tooth_in *= 5
+        tooth_angle = dθ + itooth * (2 * math.pi / nteeth)
+        dx = math.sin(tooth_angle)
+        dy = math.cos(tooth_angle)
+        ctx.move_to(cx + (radius - tooth_in) * dx, cy + (radius - tooth_in) * dy)
+        ctx.line_to(cx + (radius + tooth_out) * dx, cy + (radius + tooth_out) * dy)
         ctx.stroke()

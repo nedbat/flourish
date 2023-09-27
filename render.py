@@ -17,7 +17,7 @@ class Render:
         self.alpha = alpha
         self.bg = bg
 
-    def draw(self, surface, size, curve):
+    def draw(self, surface, size, curve, with_more=False):
         self.surface = surface
         self.width, self.height = size
         self.dt = lookup(self.width, self.DTS)
@@ -28,8 +28,10 @@ class Render:
         ctx.translate(self.width / 2, self.height / 2)
         self.set_line_width(ctx, 1)
 
-        self.draw_curve(ctx, size, curve)
-        curve.draw_more(ctx)
+        maxsize = min(self.width, self.height) / 2
+        self.draw_curve(ctx, curve, scale=maxsize)
+        if with_more:
+            curve.draw_more(ctx, scale=maxsize, param=with_more)
 
     def set_line_width(self, ctx, width_tweak):
         ctx.set_line_width(self.width * self.linewidth * width_tweak / 10000)
@@ -52,14 +54,13 @@ class ElegantLine(Render):
         # for this renderer, which draws the whole image as one line.
         assert self.alpha == 1
 
-    def draw_curve(self, ctx, size, curve):
+    def draw_curve(self, ctx, curve, scale):
         ctx.set_source_rgb(self.gray, self.gray, self.gray)
-        maxsize = min(self.width, self.height) / 2
-        for i, (x, y) in enumerate(curve.points(["x", "y"], dt=self.dt)):
+        for i, (x, y) in enumerate(curve.points(["x", "y"], scale=scale, dt=self.dt)):
             if i == 0:
-                ctx.move_to(x * maxsize, y * maxsize)
+                ctx.move_to(x, y)
             else:
-                ctx.line_to(x * maxsize, y * maxsize)
+                ctx.line_to(x, y)
         ctx.stroke()
 
 
@@ -70,17 +71,16 @@ class ColorLine(Render):
         super().__init__(**kwargs)
         self.lightness = lightness
 
-    def draw_curve(self, ctx, size, curve):
-        maxsize = min(self.width, self.height)
+    def draw_curve(self, ctx, curve, scale):
         x0 = y0 = 0
         for i, (x, y, hue, width_tweak) in enumerate(
-            curve.points(["x", "y", "j", "k"], dt=self.dt)
+            curve.points(["x", "y", "j", "k"], scale=scale, dt=self.dt)
         ):
             if i > 0:
                 r, g, b = colorsys.hls_to_rgb(hue, self.lightness, 1)
                 ctx.set_source_rgba(r, g, b, self.alpha)
-                ctx.move_to(x0 * maxsize, y0 * maxsize)
-                ctx.line_to(x * maxsize, y * maxsize)
+                ctx.move_to(x0, y0)
+                ctx.line_to(x, y)
                 self.set_line_width(ctx, width_tweak + 1.5)
                 ctx.stroke()
             x0, y0 = x, y
@@ -97,12 +97,12 @@ def draw_svg(curve, size, render=None):
     return svgio.getvalue().decode("ascii")
 
 
-def draw_png(curve, size, render=None, with_metadata=False):
+def draw_png(curve, size, render=None, with_metadata=False, with_more=0):
     width, height = size
     if render is None:
         render = curve.render
     with cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height) as surface:
-        render.draw(surface, size, curve)
+        render.draw(surface, size, curve, with_more=with_more)
         pngio = BytesIO()
         surface.write_to_png(pngio)
     pngio.seek(0)
