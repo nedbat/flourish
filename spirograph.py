@@ -141,6 +141,7 @@ class Spirograph(Curve):
 
     def points(self, dims, scale, dt=0.01):
         circles = self._make_circles()
+        print(circles)
         cycles = self.max_cycles or self._cycles()
         stop = math.pi * 2 * cycles
         t = np.arange(start=0, stop=stop + dt / 2, step=dt)
@@ -199,3 +200,88 @@ def draw_gear(ctx, scale, cx, cy, radius, nteeth, dθ):
         ctx.move_to(cx + (radius - tooth_in) * dx, cy + (radius - tooth_in) * dy)
         ctx.line_to(cx + (radius + tooth_out) * dx, cy + (radius + tooth_out) * dy)
         ctx.stroke()
+
+
+@dataclass
+class ClockHand(Parameterized):
+    radius: Parameter(
+        name="radius",
+        key="r",
+        default=0.5,
+        places=2,
+        adjacent_step=0.05,
+    )
+    speed_num: Parameter(
+        name="numerator",
+        key="n",
+        default=1,
+        adjacent_step=1,
+    )
+    speed_denom: Parameter(
+        name="denominator",
+        key="d",
+        default=3,
+        adjacent_step=1,
+    )
+
+
+@dataclass
+class MultiClock(Curve):
+    ALGORITHM = 3
+
+    def __init__(self):
+        super().__init__()
+        self.hands = []
+
+    def param_things(self):
+        yield self, None
+        for hand in self.hands:
+            yield hand, None
+
+    @classmethod
+    def from_params(cls, params, name=""):
+        assert name == ""
+
+        nhands = len(set(k[1] for k in params if k.startswith("h")))
+        curve = super().from_params(params)
+        for i in range(nhands):
+            curve.hands.append(ClockHand.from_params(params, f"h{abc(i)}"))
+        return curve
+
+    @classmethod
+    def make_random(cls, rnd):
+        curve = cls()
+        num, denom = random_rational(rnd)
+        curve.hands.append(
+            ClockHand(name="ha", radius=rnd.uniform(.5, 1.5), speed_num=num, speed_denom=denom)
+        )
+        curve.hands.append(
+            ClockHand(name="hb", radius=rnd.uniform(.5, 1.5), speed_num=num, speed_denom=denom)
+        )
+        return curve
+
+    def points(self, dims, scale, dt=0.01):
+        circles = [Circle(r=1.0, speed=1)]
+        for hand in self.hands:
+            circles.append(Circle(r=hand.radius, speed=hand.speed_num/hand.speed_denom))
+
+        print(circles)
+        cycles = 30 # TODO: work this out for real.
+        stop = math.pi * 2 * cycles
+        t = np.arange(start=0, stop=stop + dt / 2, step=dt)
+        x = y = 0
+        for circle in circles:
+            cx, cy = circle(t)
+            x += cx
+            y += cy
+        x *= scale
+        y *= scale
+        yield from zip(x, y)
+
+
+def random_rational(rnd):
+    denom = rnd.randint(2, 12)
+    num = rnd.randint(1, denom-1)
+    #div = math.gcd(num, denom)
+    #return num//div, denom//div
+    return num, denom
