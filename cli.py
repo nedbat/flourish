@@ -34,6 +34,7 @@ def main(slug):
             print(f"In {tempdir}")
             dθ = .5 / 360
             ncycles = curve._cycles()
+            ncycles = 3
             print(f"{ncycles = }")
             cycles = dθ
             framenums = itertools.count()
@@ -58,12 +59,18 @@ def main(slug):
                     pngf.write(png_bytes.read())
 
             print(f"wrote {output}")
+            try:
+                print("waiting...")
+                import time; time.sleep(3600)
+            except KeyboardInterrupt:
+                pass
+            print("Converting...")
             subprocess.run(
                 "convert "
                 + f"-delay 2 {tempdir}/frame_*.png "
                 + f"-delay 1000 {output} "
                 + "-strip -coalesce "
-                #+ "-layers Optimize "
+                + "-layers Optimize "
                 + "flourish_movie.gif",
                 shell=True,
             )

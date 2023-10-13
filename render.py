@@ -26,6 +26,7 @@ class Render:
         ctx.set_source_rgba(self.bg, self.bg, self.bg, 1)
         ctx.fill()
         ctx.translate(self.width / 2, self.height / 2)
+        ctx.scale(1, -1)
         self.set_line_width(ctx, 1)
 
         maxsize = min(self.width, self.height) / 2

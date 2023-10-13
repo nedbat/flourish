@@ -46,6 +46,8 @@ class Gear(Parameterized):
         adjacent=lambda i: [1 - i],
         random=lambda rnd: rnd.choice([0, 1]),
     )
+    speed: float = 0.0
+
 
 
 @dataclass
@@ -109,19 +111,64 @@ class Spirograph(Curve):
         self.circles = [Circle(r=1.0, speed=1)]
         last_teeth = self.outer_teeth
         last_radius = 1.0
+        cum_speed = 0
         for gear in self.gears:
             this_fraction = gear.teeth / last_teeth
             this_radius = last_radius * this_fraction
             if gear.inside:
-                speed = -(1 / this_fraction - 1)
+                speed = cum_speed - (1 / this_fraction - 1)
                 self.circles[-1].r -= this_radius
             else:
-                speed = 1 / this_fraction + 1
+                speed = cum_speed + (1 / this_fraction + 1)
                 self.circles[-1].r += this_radius
             self.circles.append(Circle(r=this_radius, speed=speed))
             last_teeth = gear.teeth
             last_radius = this_radius
+            cum_speed += speed
         self.circles[-1].r *= 1 + self.pen_extra
+        print(self.circles)
+        return self.circles
+
+    def _make_circles(self):
+        if self.circles is not None:
+            return self.circles
+
+        # In/out
+        io1 = -1 if self.gears[0].inside else 1
+        io2 = -1 if self.gears[1].inside else 1
+
+        # Gear radii
+        gr0 = 1
+        gr1 = gr0 * (self.gears[0].teeth / self.outer_teeth)
+        gr2 = gr1 * (self.gears[1].teeth / self.gears[0].teeth)
+        print(f"{gr0 = }, {gr1 = }, {gr2 = }")
+
+        # Circle radii
+        cr0 = gr0 + io1 * gr1
+        cr1 = gr1 + io2 * gr2
+        cr2 = gr2 * (1 + self.pen_extra)
+        print(f"{cr0 = }, {cr1 = }, {cr2 = }")
+
+        # Gear local speeds
+        gs0 = 0
+        gs1 = io1 * 1
+        gs2 = io2 * 1   # FOR NOW, will be a param
+
+        # Circle speeds
+        cs0 = gs1 / (1 + io1 * gr0 / gr1)           # correct
+        cs1 = gs2 / (1 + io2 * gr1 / gr2)
+        cs2 = gs2
+
+        print(f"{gs0 = }, {gs1 = }, {gs2 = }")
+        print(f"{cs0 = }, {cs1 = }, {cs2 = }")
+
+        self.circles = [
+            Circle(r=cr0, speed=cs0),
+            Circle(r=cr1, speed=cs1),
+            Circle(r=cr2, speed=cs2),
+        ]
+        self.gears[0].speed = gs0 + gs1             # correct
+        self.gears[1].speed = gs0 + gs1 + gs2
         return self.circles
 
     def _cycles(self):
@@ -141,7 +188,6 @@ class Spirograph(Curve):
 
     def points(self, dims, scale, dt=0.01):
         circles = self._make_circles()
-        print(circles)
         cycles = self.max_cycles or self._cycles()
         stop = math.pi * 2 * cycles
         t = np.arange(start=0, stop=stop + dt / 2, step=dt)
@@ -169,13 +215,16 @@ class Spirograph(Curve):
 
         for igear, gear in enumerate(self.gears):
             dx, dy = circle_dx_dy[igear]
+            #ctx.move_to(x, y)
             x += dx * scale
             y += dy * scale
+            #ctx.line_to(x, y)
+            #ctx.stroke()
             this_fraction = gear.teeth / last_teeth
             this_radius = last_radius * this_fraction
             last_teeth = gear.teeth
             last_radius = this_radius
-            draw_gear(ctx, scale, x, y, last_radius, gear.teeth, math.atan2(*circle_dx_dy[igear+1]))
+            draw_gear(ctx, scale, x, y, last_radius, gear.teeth, gear.speed * finalt)
         ctx.move_to(x, y)
         dx, dy = self.circles[-1](finalt)
         x += dx * scale
@@ -200,88 +249,3 @@ def draw_gear(ctx, scale, cx, cy, radius, nteeth, dθ):
         ctx.move_to(cx + (radius - tooth_in) * dx, cy + (radius - tooth_in) * dy)
         ctx.line_to(cx + (radius + tooth_out) * dx, cy + (radius + tooth_out) * dy)
         ctx.stroke()
-
-
-@dataclass
-class ClockHand(Parameterized):
-    radius: Parameter(
-        name="radius",
-        key="r",
-        default=0.5,
-        places=2,
-        adjacent_step=0.05,
-    )
-    speed_num: Parameter(
-        name="numerator",
-        key="n",
-        default=1,
-        adjacent_step=1,
-    )
-    speed_denom: Parameter(
-        name="denominator",
-        key="d",
-        default=3,
-        adjacent_step=1,
-    )
-
-
-@dataclass
-class MultiClock(Curve):
-    ALGORITHM = 3
-
-    def __init__(self):
-        super().__init__()
-        self.hands = []
-
-    def param_things(self):
-        yield self, None
-        for hand in self.hands:
-            yield hand, None
-
-    @classmethod
-    def from_params(cls, params, name=""):
-        assert name == ""
-
-        nhands = len(set(k[1] for k in params if k.startswith("h")))
-        curve = super().from_params(params)
-        for i in range(nhands):
-            curve.hands.append(ClockHand.from_params(params, f"h{abc(i)}"))
-        return curve
-
-    @classmethod
-    def make_random(cls, rnd):
-        curve = cls()
-        num, denom = random_rational(rnd)
-        curve.hands.append(
-            ClockHand(name="ha", radius=rnd.uniform(.5, 1.5), speed_num=num, speed_denom=denom)
-        )
-        curve.hands.append(
-            ClockHand(name="hb", radius=rnd.uniform(.5, 1.5), speed_num=num, speed_denom=denom)
-        )
-        return curve
-
-    def points(self, dims, scale, dt=0.01):
-        circles = [Circle(r=1.0, speed=1)]
-        for hand in self.hands:
-            circles.append(Circle(r=hand.radius, speed=hand.speed_num/hand.speed_denom))
-
-        print(circles)
-        cycles = 30 # TODO: work this out for real.
-        stop = math.pi * 2 * cycles
-        t = np.arange(start=0, stop=stop + dt / 2, step=dt)
-        x = y = 0
-        for circle in circles:
-            cx, cy = circle(t)
-            x += cx
-            y += cy
-        x *= scale
-        y *= scale
-        yield from zip(x, y)
-
-
-def random_rational(rnd):
-    denom = rnd.randint(2, 12)
-    num = rnd.randint(1, denom-1)
-    #div = math.gcd(num, denom)
-    #return num//div, denom//div
-    return num, denom

@@ -27,7 +27,7 @@ from constants import FULLX, FULLY, MANY_SETTINGS_COOKIE, PNG_STATE_KEY, THUMBX,
 from curve import Curve
 from harmonograph import Harmonograph
 from render import draw_png, draw_svg
-from spirograph import Spirograph, MultiClock
+from spirograph import Spirograph
 from util import dict_to_slug, slug_to_dict
 
 load_dotenv()
@@ -121,13 +121,6 @@ def many():
 def spirographs():
     size = (THUMBX, THUMBY)
     thumbs = [Thumb(Spirograph.make_random(random), size=size) for _ in range(30)]
-    return render_template("many.html", thumbs=thumbs)
-
-
-@app.route("/clock", methods=["GET", "POST"])
-def clocks():
-    size = (THUMBX, THUMBY)
-    thumbs = [Thumb(MultiClock.make_random(random), size=size) for _ in range(30)]
     return render_template("many.html", thumbs=thumbs)
 
 
