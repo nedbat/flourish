@@ -141,13 +141,11 @@ class Spirograph(Curve):
         gr0 = 1
         gr1 = gr0 * (self.gears[0].teeth / self.outer_teeth)
         gr2 = gr1 * (self.gears[1].teeth / self.gears[0].teeth)
-        print(f"{gr0 = }, {gr1 = }, {gr2 = }")
 
         # Circle radii
         cr0 = gr0 + io1 * gr1
         cr1 = gr1 + io2 * gr2
         cr2 = gr2 * (1 + self.pen_extra)
-        print(f"{cr0 = }, {cr1 = }, {cr2 = }")
 
         # Gear local speeds
         gs0 = 0
@@ -155,19 +153,16 @@ class Spirograph(Curve):
         gs2 = io2 * 1   # FOR NOW, will be a param
 
         # Circle speeds
-        cs0 = gs1 / (1 + io1 * gr0 / gr1)           # correct
-        cs1 = gs2 / (1 + io2 * gr1 / gr2)
-        cs2 = gs2
-
-        print(f"{gs0 = }, {gs1 = }, {gs2 = }")
-        print(f"{cs0 = }, {cs1 = }, {cs2 = }")
+        cs0 = gs0 + gs1 / (1 + io1 * gr0 / gr1)
+        cs1 = gs0 + gs1 + gs2 / (1 + io2 * gr1 / gr2)
+        cs2 = gs0 + gs1 + gs2
 
         self.circles = [
             Circle(r=cr0, speed=cs0),
             Circle(r=cr1, speed=cs1),
             Circle(r=cr2, speed=cs2),
         ]
-        self.gears[0].speed = gs0 + gs1             # correct
+        self.gears[0].speed = gs0 + gs1
         self.gears[1].speed = gs0 + gs1 + gs2
         return self.circles
 
@@ -215,11 +210,8 @@ class Spirograph(Curve):
 
         for igear, gear in enumerate(self.gears):
             dx, dy = circle_dx_dy[igear]
-            #ctx.move_to(x, y)
             x += dx * scale
             y += dy * scale
-            #ctx.line_to(x, y)
-            #ctx.stroke()
             this_fraction = gear.teeth / last_teeth
             this_radius = last_radius * this_fraction
             last_teeth = gear.teeth

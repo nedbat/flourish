@@ -32,7 +32,7 @@ def main(slug):
     if 1:
         with tempfile.TemporaryDirectory() as tempdir:
             print(f"In {tempdir}")
-            dθ = .5 / 360
+            dθ = 1 / 360
             ncycles = curve._cycles()
             ncycles = 3
             print(f"{ncycles = }")
