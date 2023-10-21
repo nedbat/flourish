@@ -141,6 +141,7 @@ class Spirograph(Curve):
         gr0 = 1
         gr1 = gr0 * (self.gears[0].teeth / self.outer_teeth)
         gr2 = gr1 * (self.gears[1].teeth / self.gears[0].teeth)
+        print(f"{gr0 = }, {gr1 = }, {gr2 = }")
 
         # Circle radii
         cr0 = gr0 + io1 * gr1
@@ -151,11 +152,13 @@ class Spirograph(Curve):
         gs0 = 0
         gs1 = io1 * 1
         gs2 = io2 * 1   # FOR NOW, will be a param
+        print(f"{gs0 = }, {gs1 = }, {gs2 = }")
 
         # Circle speeds
         cs0 = gs0 + gs1 / (1 + io1 * gr0 / gr1)
         cs1 = gs0 + gs1 + gs2 / (1 + io2 * gr1 / gr2)
         cs2 = gs0 + gs1 + gs2
+        print(f"{cs0 = }, {cs1 = }, {cs2 = }")
 
         self.circles = [
             Circle(r=cr0, speed=cs0),
@@ -164,14 +167,22 @@ class Spirograph(Curve):
         ]
         self.gears[0].speed = gs0 + gs1
         self.gears[1].speed = gs0 + gs1 + gs2
+        print(f"{self.gears[0].speed = }, {self.gears[1].speed = }")
         return self.circles
 
     def _cycles(self):
+        if 0:
+            rots = [1/c.speed for c in self._make_circles() if c.speed != 0]
+            cycles = lcm_float(rots)
+            print(f"{rots = }, {cycles = }")
+            return cycles
         last_teeth = self.outer_teeth
         cycles = 1
         for gear in self.gears:
             cycles *= gear.teeth // math.gcd(last_teeth, gear.teeth)
             last_teeth = gear.teeth
+        print(f"{self.outer_teeth = }, {self.gears = }, {cycles = }")
+        print(f"{self._make_circles() = }")
         return cycles
 
     def _scale(self):
@@ -241,3 +252,9 @@ def draw_gear(ctx, scale, cx, cy, radius, nteeth, dθ):
         ctx.move_to(cx + (radius - tooth_in) * dx, cy + (radius - tooth_in) * dy)
         ctx.line_to(cx + (radius + tooth_out) * dx, cy + (radius + tooth_out) * dy)
         ctx.stroke()
+
+
+def lcm_float(nums):
+    precision = 2
+    numints = [int(abs(round(n, precision)) * 10**precision) for n in nums]
+    return math.lcm(*numints) / 10**precision

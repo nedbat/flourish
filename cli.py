@@ -32,11 +32,10 @@ def main(slug):
     if 1:
         with tempfile.TemporaryDirectory() as tempdir:
             print(f"In {tempdir}")
-            dθ = 1 / 360
+            dθ = 2 / 360
             ncycles = curve._cycles()
-            ncycles = 3
+            ncycles = 30
             print(f"{ncycles = }")
-            cycles = dθ
             framenums = itertools.count()
             for cycles in slow_then_faster(ncycles, dθ, 1, dθ * 40):
                 if cycles >= ncycles:
@@ -48,6 +47,7 @@ def main(slug):
                     with_more = 2 - (cycles / 2)
                 else:
                     with_more = 0
+                with_more = 1   # don't fade the gears while we debug
                 png_bytes = draw_png(
                     curve=curve,
                     size=(FULLX // 2, FULLY // 2),
