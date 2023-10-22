@@ -32,7 +32,7 @@ def main(slug):
     if 1:
         with tempfile.TemporaryDirectory() as tempdir:
             print(f"In {tempdir}")
-            dθ = 2 / 360
+            dθ = .5 / 360
             ncycles = curve._cycles()
             ncycles = 30
             print(f"{ncycles = }")
@@ -47,7 +47,6 @@ def main(slug):
                     with_more = 2 - (cycles / 2)
                 else:
                     with_more = 0
-                with_more = 1   # don't fade the gears while we debug
                 png_bytes = draw_png(
                     curve=curve,
                     size=(FULLX // 2, FULLY // 2),

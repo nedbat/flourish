@@ -150,14 +150,14 @@ class Spirograph(Curve):
 
         # Gear local speeds
         gs0 = 0
-        gs1 = io1 * 1
+        gs1 = 1 + io1 * gr0 / gr1
         gs2 = io2 * 1   # FOR NOW, will be a param
         print(f"{gs0 = }, {gs1 = }, {gs2 = }")
 
         # Circle speeds
-        cs0 = gs0 + gs1 / (1 + io1 * gr0 / gr1)
-        cs1 = gs0 + gs1 + gs2 / (1 + io2 * gr1 / gr2)
-        cs2 = gs0 + gs1 + gs2
+        cs0 = 1
+        cs1 = gs1 + gs2 / (1 + io2 * gr1 / gr2)
+        cs2 = gs1 + gs2
         print(f"{cs0 = }, {cs1 = }, {cs2 = }")
 
         self.circles = [
