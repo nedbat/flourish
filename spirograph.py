@@ -118,29 +118,6 @@ class Spirograph(Curve):
     def _make_circles(self):
         if self.circles is not None:
             return self.circles
-        self.circles = [Circle(r=1.0, speed=1)]
-        last_teeth = self.outer_teeth
-        last_radius = 1.0
-        cum_speed = 0
-        for gear in self.gears:
-            this_fraction = gear.teeth / last_teeth
-            this_radius = last_radius * this_fraction
-            if gear.inside:
-                speed = cum_speed - (1 / this_fraction - 1)
-                self.circles[-1].r -= this_radius
-            else:
-                speed = cum_speed + (1 / this_fraction + 1)
-                self.circles[-1].r += this_radius
-            self.circles.append(Circle(r=this_radius, speed=speed))
-            last_teeth = gear.teeth
-            last_radius = this_radius
-            cum_speed += speed
-        self.circles[-1].r *= 1 + self.pen_extra
-        return self.circles
-
-    def _make_circles(self):
-        if self.circles is not None:
-            return self.circles
 
         # In/out
         io1 = -1 if self.gears[0].inside else 1
