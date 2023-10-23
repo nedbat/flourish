@@ -76,13 +76,20 @@ class Spirograph(Curve):
         default=1,
         adjacent_step=1,
     )
+    last_speed_denom: Parameter(
+        name="last_gear_speed_denominator",
+        key="zd",
+        default=1,
+        adjacent_step=1,
+    )
     max_cycles = None
 
-    def __init__(self, outer_teeth=144, pen_extra=0.0, last_speed=1):
+    def __init__(self, outer_teeth=144, pen_extra=0.0, last_speed=1, last_speed_denom=1):
         super().__init__()
         self.outer_teeth = outer_teeth
         self.pen_extra = pen_extra
         self.last_speed = last_speed
+        self.last_speed_denom = last_speed_denom
         self.gears = []
         self.circles = None
 
@@ -113,6 +120,7 @@ class Spirograph(Curve):
         )
         curve.pen_extra = rnd.randint(0, 5) * 0.5
         curve.last_speed = rnd.randint(-2, 2)
+        curve.last_speed_denom = rnd.choice([1, 2])
         return curve
 
     def _make_circles(self):
@@ -136,7 +144,7 @@ class Spirograph(Curve):
         # Gear local speeds
         gs0 = 0
         gs1 = 1 + io1 * Fraction(gr0) / gr1
-        gs2 = io2 * self.last_speed
+        gs2 = io2 * Fraction(self.last_speed) / self.last_speed_denom
 
         # Circle speeds
         cs0 = 1
