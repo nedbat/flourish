@@ -34,7 +34,6 @@ def main(slug):
             print(f"In {tempdir}")
             dθ = .5 / 360
             ncycles = curve._cycles()
-            ncycles = 30
             print(f"{ncycles = }")
             framenums = itertools.count()
             for cycles in slow_then_faster(ncycles, dθ, 1, dθ * 40):

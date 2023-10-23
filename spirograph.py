@@ -1,5 +1,7 @@
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from fractions import Fraction
+
 
 import numpy as np
 
@@ -11,11 +13,11 @@ from util import abc
 @dataclass
 class Circle:
     r: float
-    speed: float
+    speed: Fraction
 
     def __call__(self, t):
         """Returns x,y"""
-        tt = t * self.speed
+        tt = t * float(self.speed)
         return (self.r * np.sin(tt), self.r * np.cos(tt))
 
 
@@ -134,7 +136,6 @@ class Spirograph(Curve):
             last_radius = this_radius
             cum_speed += speed
         self.circles[-1].r *= 1 + self.pen_extra
-        print(self.circles)
         return self.circles
 
     def _make_circles(self):
@@ -147,9 +148,8 @@ class Spirograph(Curve):
 
         # Gear radii
         gr0 = 1
-        gr1 = gr0 * (self.gears[0].teeth / self.outer_teeth)
-        gr2 = gr1 * (self.gears[1].teeth / self.gears[0].teeth)
-        print(f"{gr0 = }, {gr1 = }, {gr2 = }")
+        gr1 = gr0 * Fraction(self.gears[0].teeth) / self.outer_teeth
+        gr2 = gr1 * Fraction(self.gears[1].teeth) / self.gears[0].teeth
 
         # Circle radii
         cr0 = gr0 + io1 * gr1
@@ -158,39 +158,25 @@ class Spirograph(Curve):
 
         # Gear local speeds
         gs0 = 0
-        gs1 = 1 + io1 * gr0 / gr1
+        gs1 = 1 + io1 * Fraction(gr0) / gr1
         gs2 = io2 * self.last_speed
-        print(f"{gs0 = }, {gs1 = }, {gs2 = }")
 
         # Circle speeds
         cs0 = 1
-        cs1 = gs1 + gs2 / (1 + io2 * gr1 / gr2)
+        cs1 = gs1 + Fraction(gs2) / (1 + io2 * Fraction(gr1) / gr2)
         cs2 = gs1 + gs2
-        print(f"{cs0 = }, {cs1 = }, {cs2 = }")
 
         self.circles = [
-            Circle(r=cr0, speed=cs0),
-            Circle(r=cr1, speed=cs1),
-            Circle(r=cr2, speed=cs2),
+            Circle(r=float(cr0), speed=cs0),
+            Circle(r=float(cr1), speed=cs1),
+            Circle(r=float(cr2), speed=cs2),
         ]
         self.gears[0].speed = gs0 + gs1
         self.gears[1].speed = gs0 + gs1 + gs2
-        print(f"{self.gears[0].speed = }, {self.gears[1].speed = }")
         return self.circles
 
     def _cycles(self):
-        if 0:
-            rots = [1/c.speed for c in self._make_circles() if c.speed != 0]
-            cycles = lcm_float(rots)
-            print(f"{rots = }, {cycles = }")
-            return cycles
-        last_teeth = self.outer_teeth
-        cycles = 1
-        for gear in self.gears:
-            cycles *= gear.teeth // math.gcd(last_teeth, gear.teeth)
-            last_teeth = gear.teeth
-        print(f"{self.outer_teeth = }, {self.gears = }, {cycles = }")
-        print(f"{self._make_circles() = }")
+        cycles = math.lcm(*[c.speed.denominator for c in self._make_circles()])
         return cycles
 
     def _scale(self):
