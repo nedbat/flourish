@@ -34,3 +34,7 @@ class Curve(Parameterized):
 
     def draw_more(self, ctx):
         pass
+
+
+class ImpossibleCurve(Exception):
+    ...

@@ -24,7 +24,7 @@ from wtforms.widgets import NumberInput
 from wtforms.validators import DataRequired
 
 from constants import FULLX, FULLY, MANY_SETTINGS_COOKIE, PNG_STATE_KEY, THUMBX, THUMBY
-from curve import Curve
+from curve import Curve, ImpossibleCurve
 from harmonograph import Harmonograph
 from render import draw_png, draw_svg
 from spirograph import Spirograph
@@ -120,7 +120,14 @@ def many():
 @app.route("/spiro", methods=["GET", "POST"])
 def spirographs():
     size = (THUMBX, THUMBY)
-    thumbs = [Thumb(Spirograph.make_random(random), size=size) for _ in range(30)]
+    thumbs = []
+    while len(thumbs) < 30:
+        try:
+            curve = Spirograph.make_random(random)
+            if curve._cycles() < 50:
+                thumbs.append(Thumb(curve, size=size))
+        except ImpossibleCurve:
+            pass
     return render_template("many.html", thumbs=thumbs)
 
 

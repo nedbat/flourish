@@ -5,7 +5,7 @@ from fractions import Fraction
 
 import numpy as np
 
-from curve import Curve
+from curve import Curve, ImpossibleCurve
 from parameter import Parameter, Parameterized
 from util import abc
 
@@ -140,7 +140,10 @@ class Spirograph(Curve):
 
         # Circle speeds
         cs0 = 1
-        cs1 = gs1 + Fraction(gs2) / (1 + io2 * Fraction(gr1) / gr2)
+        cs1_denom = (1 + io2 * Fraction(gr1) / gr2)
+        if cs1_denom == 0:
+            raise ImpossibleCurve()
+        cs1 = gs1 + Fraction(gs2) / cs1_denom
         cs2 = gs1 + gs2
 
         self.circles = [
