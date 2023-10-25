@@ -56,13 +56,24 @@ class ElegantLine(Render):
         assert self.alpha == 1
 
     def draw_curve(self, ctx, curve, scale):
-        ctx.set_source_rgb(self.gray, self.gray, self.gray)
-        for i, (x, y) in enumerate(curve.points(["x", "y"], scale=scale, dt=self.dt)):
-            if i == 0:
-                ctx.move_to(x, y)
-            else:
-                ctx.line_to(x, y)
-        ctx.stroke()
+        if curve.complexity() < 25_000:
+            ctx.set_source_rgb(self.gray, self.gray, self.gray)
+            for i, (x, y) in enumerate(curve.points(["x", "y"], scale=scale, dt=self.dt)):
+                if i == 0:
+                    ctx.move_to(x, y)
+                else:
+                    ctx.line_to(x, y)
+            ctx.stroke()
+        else:
+            ctx.set_source_rgb(0.75, 0.75, 0.75)
+            w = scale * 0.25
+            ctx.move_to(-w, -w)
+            ctx.line_to(-w, w)
+            ctx.line_to(w, w)
+            ctx.line_to(w, -w)
+            ctx.close_path()
+            ctx.fill()
+
 
 
 class ColorLine(Render):

@@ -29,6 +29,9 @@ class Curve(Parameterized):
         subcls = cls.subcurves[alg]
         return subcls.from_params(params)
 
+    def complexity(self):
+        return 0
+
     def points(self, dims, dt=0.01):
         pass
 

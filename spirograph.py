@@ -32,6 +32,19 @@ def adjacent_teeth(t):
     teeth.remove(t)
     return teeth
 
+def adjacent_nonzero(v):
+    """
+    Four adjacent values, but not zero.
+    """
+    vals = [v - 2, v - 1, v + 1, v + 2]
+    if 0 in vals:
+        vals.remove(0)
+        if v > 0:
+            vals = [v - 3] + vals
+        else:
+            vals = vals + [v + 3]
+    assert len(vals) == 4
+    return vals
 
 @dataclass
 class Gear(Parameterized):
@@ -80,7 +93,7 @@ class Spirograph(Curve):
         name="last_gear_speed_denominator",
         key="zd",
         default=1,
-        adjacent_step=1,
+        adjacent=adjacent_nonzero,
     )
     max_cycles = None
 
@@ -122,6 +135,9 @@ class Spirograph(Curve):
         curve.last_speed = rnd.randint(-2, 2)
         curve.last_speed_denom = rnd.choice([1, 2])
         return curve
+
+    def complexity(self):
+        return self._cycles() * 100
 
     def _make_circles(self):
         if self.circles is not None:

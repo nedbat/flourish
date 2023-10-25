@@ -124,7 +124,7 @@ def spirographs():
     while len(thumbs) < 30:
         try:
             curve = Spirograph.make_random(random)
-            if curve._cycles() < 50:
+            if curve.complexity() < 5000:
                 thumbs.append(Thumb(curve, size=size))
         except ImpossibleCurve:
             pass
