@@ -2,7 +2,6 @@ import math
 from dataclasses import dataclass, field
 from fractions import Fraction
 
-
 import numpy as np
 
 from curve import Curve, ImpossibleCurve
@@ -250,9 +249,3 @@ def draw_gear(ctx, scale, cx, cy, radius, nteeth, dθ):
         ctx.move_to(cx + (radius - tooth_in) * dx, cy + (radius - tooth_in) * dy)
         ctx.line_to(cx + (radius + tooth_out) * dx, cy + (radius + tooth_out) * dy)
         ctx.stroke()
-
-
-def lcm_float(nums):
-    precision = 2
-    numints = [int(abs(round(n, precision)) * 10**precision) for n in nums]
-    return math.lcm(*numints) / 10**precision
