@@ -143,6 +143,7 @@ class Harmonograph(Curve):
             stop=self.timespan.center + ts_half,
             step=dt / self.density,
         )
+        scale *= 2
         scale /= len(self.dimensions["x"]) + 1
         pts = []
         for dim_name in dims:

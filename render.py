@@ -93,7 +93,7 @@ class ColorLine(Render):
                 ctx.set_source_rgba(r, g, b, self.alpha)
                 ctx.move_to(x0, y0)
                 ctx.line_to(x, y)
-                self.set_line_width(ctx, width_tweak + 1.5)
+                self.set_line_width(ctx, width_tweak/100 + 1.5)
                 ctx.stroke()
             x0, y0 = x, y
 
