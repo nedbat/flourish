@@ -3,7 +3,7 @@ dataclasses-json
 Flask
 Flask-WTF
 gunicorn
-numpy
+numpy<2.0.0
 Pillow
 pycairo
 python-dotenv
